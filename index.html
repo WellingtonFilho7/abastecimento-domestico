@@ -3,897 +3,667 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="description" content="Codex de Logística Familiar — gestão de estoque rural para família de 6 pessoas">
-<meta name="theme-color" content="#1a1a18">
-<title>Codex de Logística Familiar</title>
+<meta name="description" content="Manual operacional de resiliência doméstica para abastecimento rural com restrições SG/SL.">
+<meta name="theme-color" content="#1b1916">
+<meta name="mobile-web-app-capable" content="yes">
+<title>Codex de Resiliência Doméstica</title>
+<link rel="manifest" href="./manifest.webmanifest">
+<link rel="icon" href="./icons/icon-192.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="./icons/icon-192.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=DM+Mono:wght@400;500&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
-
-:root {
-  --parchment: #f5f0e8;
-  --cream: #faf7f0;
-  --ink: #1a1a18;
-  --stone: #6b6358;
-  --border: #d4cfc8;
-  --amber: #b8860b;
-  --rust: #8b2a2a;
-  --green-ok: #2d6a4f;
-  --yellow-warn: #b8860b;
-  --red-alert: #9b2c2c;
-  --bg: #eee9de;
-}
-
-body { background: var(--bg); color: var(--ink); font-family: 'Inter', system-ui, sans-serif; font-size: 14px; line-height: 1.6; }
-
-/* HEADER */
-header { background: var(--ink); color: var(--cream); padding: 20px 32px; display: flex; align-items: baseline; gap: 16px; }
-header h1 { font-family: 'Playfair Display', Georgia, serif; font-size: 22px; font-weight: 600; letter-spacing: 0.5px; }
-.header-label { font-family: 'DM Mono', 'Courier New', monospace; font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: #9a8f7e; }
-.header-meta { font-size: 11px; color: #9a8f7e; margin-left: auto; font-family: 'DM Mono', 'Courier New', monospace; }
-
-/* NAV */
-nav { background: var(--parchment); border-bottom: 1px solid var(--border); padding: 0 24px; overflow-x: auto; }
-nav div[role="tablist"] { display: flex; gap: 0; min-width: max-content; }
-.tab-btn {
-  font-family: 'DM Mono', 'Courier New', monospace;
-  font-size: 11px; letter-spacing: 1px; text-transform: uppercase;
-  padding: 12px 18px; border: none; background: none; cursor: pointer;
-  color: var(--stone); border-bottom: 2px solid transparent;
-  transition: color .15s, border-color .15s; white-space: nowrap;
-}
-.tab-btn:hover { color: var(--ink); }
-.tab-btn.active { color: var(--ink); border-bottom-color: var(--ink); }
-.tab-btn[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--ink); }
-
-/* MAIN CONTENT */
-main { max-width: 960px; margin: 0 auto; padding: 32px 24px; }
-.section { display: none; }
-.section.active { display: block; }
-
-.section-title { font-family: 'Playfair Display', Georgia, serif; font-size: 20px; margin-bottom: 4px; }
-.section-sub { font-size: 12px; color: var(--stone); font-family: 'DM Mono', 'Courier New', monospace; margin-bottom: 24px; }
-
-/* ALERT BOX */
-.alert-box {
-  border-left: 3px solid var(--amber);
-  background: rgba(184,134,11,0.07);
-  padding: 12px 16px;
-  border-radius: 0 4px 4px 0;
-  margin-bottom: 20px;
-  font-size: 13px;
-  line-height: 1.7;
-}
-.alert-box strong { display: block; margin-bottom: 4px; }
-
-/* TABLES */
-.table-wrap { overflow-x: auto; margin-bottom: 28px; }
-table { width: 100%; border-collapse: collapse; background: var(--cream); border: 1px solid var(--border); border-radius: 4px; overflow: hidden; }
-thead tr { background: var(--ink); color: var(--cream); }
-th { font-family: 'DM Mono', 'Courier New', monospace; font-size: 10px; letter-spacing: 1px; text-transform: uppercase; padding: 10px 12px; text-align: left; font-weight: 500; }
-td { padding: 10px 12px; border-bottom: 1px solid var(--border); vertical-align: middle; }
-tr:last-child td { border-bottom: none; }
-tr:hover td { background: rgba(0,0,0,0.02); }
-
-.td-item { font-weight: 500; font-size: 13px; }
-.td-note { font-size: 11px; color: var(--stone); margin-top: 2px; }
-.star { color: var(--amber); margin-right: 5px; font-size: 11px; }
-.td-mono { font-family: 'DM Mono', 'Courier New', monospace; font-size: 12px; }
-.td-consumo { font-family: 'DM Mono', 'Courier New', monospace; font-size: 12px; }
-.td-days { font-family: 'DM Mono', 'Courier New', monospace; font-size: 11px; color: var(--stone); margin-left: 6px; }
-
-/* BADGES */
-.badge { display: inline-block; padding: 2px 10px; border-radius: 10px; font-size: 10px; font-family: 'DM Mono', 'Courier New', monospace; letter-spacing: 0.5px; font-weight: 500; }
-.badge-ok { background: rgba(45,106,79,0.12); color: var(--green-ok); }
-.badge-warn { background: rgba(184,134,11,0.12); color: var(--yellow-warn); }
-.badge-alert { background: rgba(155,44,44,0.12); color: var(--red-alert); }
-.badge-info { background: rgba(107,99,88,0.12); color: var(--stone); }
-
-/* STOCK INPUT */
-.stock-input {
-  width: 70px; padding: 4px 8px;
-  border: 1px solid var(--border); border-radius: 2px;
-  background: var(--cream); font-family: 'DM Mono', 'Courier New', monospace;
-  font-size: 12px; color: var(--ink);
-}
-.stock-input:focus { outline: 2px solid var(--amber); outline-offset: 1px; }
-:focus-visible { outline: 2px solid var(--amber); outline-offset: 2px; }
-
-/* CHECKLIST */
-.checklist-card {
-  background: var(--cream); border: 1px solid var(--border);
-  border-radius: 4px; padding: 18px 20px; margin-bottom: 16px;
-}
-.checklist-header { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
-.checklist-title { font-family: 'Playfair Display', Georgia, serif; font-size: 15px; }
-.progress-counter {
-  font-family: 'DM Mono', 'Courier New', monospace; font-size: 10px;
-  padding: 2px 8px; border-radius: 10px;
-  background: rgba(154,143,126,0.15); color: var(--stone); margin-left: auto;
-}
-.progress-done { background: rgba(45,106,79,0.15); color: var(--green-ok); }
-.progress-partial { background: rgba(184,134,11,0.12); color: var(--yellow-warn); }
-
-.check-item { display: flex; align-items: flex-start; gap: 10px; padding: 6px 0; border-bottom: 1px solid rgba(0,0,0,0.05); }
-.check-item:last-child { border-bottom: none; }
-.check-box {
-  width: 18px; height: 18px; min-width: 18px;
-  border: 1.5px solid var(--border); border-radius: 2px;
-  background: var(--parchment); cursor: pointer;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 11px; color: var(--green-ok); transition: background .12s;
-}
-.check-box.checked { background: rgba(45,106,79,0.15); border-color: var(--green-ok); }
-.check-box:hover { border-color: var(--stone); }
-.check-text { font-size: 13px; line-height: 1.5; padding-top: 1px; }
-.check-box.checked + .check-text { color: var(--stone); text-decoration: line-through; text-decoration-color: rgba(107,99,88,0.4); }
-
-/* PROTOCOL BOX */
-.protocol-box { background: var(--ink); color: var(--cream); border-radius: 4px; padding: 20px 24px; margin-bottom: 16px; }
-.protocol-box h3 { font-family: 'Playfair Display', Georgia, serif; font-size: 16px; margin-bottom: 12px; }
-.protocol-box ul { padding-left: 16px; line-height: 2; font-size: 13px; }
-.protocol-box .badge { background: rgba(255,255,255,0.1); color: var(--cream); }
-
-/* SHOPPING BUTTON */
-.btn-shopping {
-  font-family: 'DM Mono', 'Courier New', monospace; font-size: 11px;
-  letter-spacing: 1px; text-transform: uppercase;
-  padding: 10px 24px; border: 1px solid var(--ink);
-  background: var(--ink); color: var(--cream);
-  border-radius: 2px; cursor: pointer; margin-bottom: 24px;
-}
-.btn-shopping:hover { background: #333; }
-
-/* MODAL */
-#shopping-modal { position: fixed; inset: 0; z-index: 1000; display: flex; align-items: center; justify-content: center; }
-#shopping-modal[hidden] { display: none; }
-.modal-backdrop { position: absolute; inset: 0; background: rgba(0,0,0,0.6); }
-.modal-box {
-  position: relative; background: var(--cream); border: 1px solid var(--border);
-  border-radius: 4px; padding: 32px; max-width: 500px; width: 90%;
-  max-height: 80vh; display: flex; flex-direction: column; gap: 16px;
-}
-.modal-box h3 { font-family: 'Playfair Display', Georgia, serif; font-size: 20px; }
-#shopping-list-text {
-  font-family: 'DM Mono', 'Courier New', monospace; font-size: 12px;
-  line-height: 1.7; overflow-y: auto; flex: 1; white-space: pre-wrap;
-  background: var(--parchment); padding: 16px; border-radius: 2px; border: 1px solid var(--border);
-}
-.modal-actions { display: flex; gap: 12px; justify-content: flex-end; }
-.modal-actions button {
-  font-family: 'DM Mono', 'Courier New', monospace; font-size: 11px;
-  letter-spacing: 1px; padding: 8px 20px; border-radius: 2px; cursor: pointer;
-  border: 1px solid var(--border); background: var(--ink); color: var(--cream);
-}
-.modal-actions button:last-child { background: transparent; color: var(--ink); }
-
-/* FOOTER */
-footer { text-align: center; padding: 32px; font-size: 11px; color: var(--stone); font-family: 'DM Mono', 'Courier New', monospace; }
-
-/* PRINT */
-@media print {
-  nav, .header-meta, footer { display: none !important; }
-  header { background: white !important; color: black !important; padding: 16px !important; }
-  header h1, .header-label { color: black !important; }
-  .section { display: block !important; }
-  .protocol-box { background: #f0f0f0 !important; color: black !important; }
-  body { background: white !important; }
-  thead tr { background: #333 !important; -webkit-print-color-adjust: exact; }
-  .check-box { border: 1px solid #333 !important; }
-}
-
-@media (max-width: 600px) {
-  header { padding: 16px; flex-wrap: wrap; }
-  main { padding: 20px 12px; }
-  .tab-btn { padding: 10px 12px; font-size: 10px; }
-  th, td { padding: 8px; }
-}
+  *, *::before, *::after { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    min-height: 100vh;
+    color: #191612;
+    background:
+      radial-gradient(circle at top left, rgba(192, 142, 77, 0.16), transparent 28%),
+      radial-gradient(circle at bottom right, rgba(65, 91, 60, 0.16), transparent 30%),
+      linear-gradient(180deg, #f2eadf 0%, #ece2d5 100%);
+    font-family: 'IBM Plex Sans', sans-serif;
+  }
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    background-image: linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+    background-size: 24px 24px;
+    mask-image: radial-gradient(circle at center, black 52%, transparent 100%);
+  }
+  header {
+    position: relative;
+    overflow: hidden;
+    padding: 40px 28px 28px;
+    background: linear-gradient(135deg, #1b1916, #2a241d);
+    color: #f5eee4;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+  }
+  header::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(120deg, transparent 10%, rgba(198, 145, 74, 0.08) 55%, transparent 100%);
+    transform: translateX(-15%);
+  }
+  .header-shell {
+    position: relative;
+    z-index: 1;
+    max-width: 1160px;
+    margin: 0 auto;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    align-items: flex-end;
+  }
+  .header-label, .eyebrow, .section-kicker {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+  }
+  .header-label { color: #c9b299; }
+  h1, h2, h3 {
+    margin: 0;
+    font-family: 'Cormorant Garamond', serif;
+    line-height: 0.95;
+  }
+  h1 {
+    margin-top: 8px;
+    font-size: clamp(2.5rem, 5vw, 4.6rem);
+    font-weight: 600;
+    letter-spacing: -0.04em;
+  }
+  .header-copy {
+    max-width: 620px;
+  }
+  .header-copy p {
+    margin: 14px 0 0;
+    max-width: 580px;
+    color: #d8ccb9;
+    font-size: 15px;
+  }
+  .header-meta {
+    margin-left: auto;
+    max-width: 340px;
+    color: #c5b8a6;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    line-height: 1.8;
+  }
+  nav {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    backdrop-filter: blur(16px);
+    background: rgba(241, 233, 222, 0.88);
+    border-bottom: 1px solid rgba(53, 43, 29, 0.12);
+  }
+  .nav-shell {
+    max-width: 1160px;
+    margin: 0 auto;
+    padding: 0 16px;
+  }
+  #nav-tabs {
+    display: flex;
+    gap: 4px;
+    overflow-x: auto;
+    padding: 10px 0;
+  }
+  .tab-btn {
+    border: 0;
+    background: transparent;
+    color: #695945;
+    padding: 12px 14px;
+    border-radius: 999px;
+    display: inline-flex;
+    gap: 10px;
+    align-items: center;
+    white-space: nowrap;
+    cursor: pointer;
+    font: 500 11px/1 'IBM Plex Mono', monospace;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    transition: transform 0.16s ease, background 0.16s ease, color 0.16s ease;
+  }
+  .tab-btn:hover { background: rgba(91, 76, 54, 0.08); color: #201b16; transform: translateY(-1px); }
+  .tab-btn.active { background: #1d1914; color: #f5eee4; box-shadow: 0 10px 30px rgba(29, 25, 20, 0.18); }
+  .tab-icon { opacity: 0.75; }
+  main {
+    max-width: 1160px;
+    margin: 0 auto;
+    padding: 36px 18px 48px;
+  }
+  .section { display: none; animation: reveal 180ms ease-out; }
+  .section.active { display: block; }
+  @keyframes reveal {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .section-kicker { color: #8a745d; }
+  .section-title {
+    margin-top: 10px;
+    font-size: clamp(2rem, 4vw, 3rem);
+    color: #1d1712;
+  }
+  .section-sub {
+    margin: 10px 0 28px;
+    max-width: 760px;
+    color: #5d5144;
+    font-size: 15px;
+  }
+  .hero-grid, .grid-2, .checklist-grid, .summary-grid {
+    display: grid;
+    gap: 18px;
+  }
+  .hero-grid { grid-template-columns: 1.3fr 1fr; margin-bottom: 20px; }
+  .grid-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); margin-bottom: 18px; }
+  .stat-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+  }
+  .hero-panel, .card, .protocol-box, .stat-card {
+    position: relative;
+    overflow: hidden;
+    background: rgba(250, 245, 237, 0.84);
+    border: 1px solid rgba(95, 73, 51, 0.14);
+    border-radius: 24px;
+    box-shadow: 0 22px 44px rgba(67, 52, 34, 0.08);
+  }
+  .hero-panel, .protocol-box { padding: 24px; }
+  .hero-panel-accent {
+    color: #f5eee4;
+    background: linear-gradient(135deg, #1b1916, #2e271f 62%, #5c4731 100%);
+  }
+  .hero-panel-accent p { color: #ddcfbf; }
+  .hero-panel-accent .eyebrow { color: #d6bb93; }
+  .hero-panel h3 { font-size: 2.1rem; margin: 8px 0 16px; }
+  .pill-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 18px;
+  }
+  .pill, .unit-chip {
+    display: inline-flex;
+    align-items: center;
+    border-radius: 999px;
+    padding: 6px 10px;
+    font: 500 11px/1 'IBM Plex Mono', monospace;
+    background: rgba(201, 174, 135, 0.12);
+    color: inherit;
+  }
+  .stat-card {
+    padding: 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    justify-content: flex-end;
+  }
+  .stat-label, .stat-note, .td-note {
+    color: #7b6b59;
+    font-size: 12px;
+  }
+  .stat-card strong {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 2rem;
+    line-height: 1;
+  }
+  .card, .inventory-card { padding: 22px; }
+  .card-heading {
+    margin-bottom: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .card-heading-inline {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: flex-start;
+  }
+  .card h3, .protocol-box h3 { font-size: 1.7rem; color: #1e1812; }
+  .alert-box {
+    margin-bottom: 18px;
+    padding: 16px 18px;
+    border-left: 4px solid #b87e31;
+    background: rgba(184, 126, 49, 0.08);
+    border-radius: 12px;
+    color: #553d22;
+  }
+  .alert-box strong { display: block; margin-bottom: 4px; }
+  .summary-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    margin-bottom: 18px;
+  }
+  .summary-card {
+    padding: 16px 18px;
+    border-radius: 18px;
+    border: 1px solid rgba(81, 62, 40, 0.08);
+    background: rgba(255,255,255,0.58);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.24);
+  }
+  .summary-card-alert {
+    background: rgba(154, 54, 54, 0.08);
+    border-color: rgba(154, 54, 54, 0.16);
+  }
+  .summary-card-warn {
+    background: rgba(184, 126, 49, 0.1);
+    border-color: rgba(184, 126, 49, 0.18);
+  }
+  .summary-card-balance {
+    background: rgba(58, 102, 67, 0.1);
+    border-color: rgba(58, 102, 67, 0.16);
+  }
+  .summary-label, .summary-note, .mini-tag {
+    font-family: 'IBM Plex Mono', monospace;
+  }
+  .summary-label {
+    display: block;
+    color: #765f4b;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  .summary-card strong {
+    display: block;
+    margin: 12px 0 6px;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 2.1rem;
+    line-height: 1;
+    color: #1f1813;
+  }
+  .summary-note {
+    color: #6d5c4b;
+    font-size: 11px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+  .table-wrap { overflow-x: auto; }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 760px;
+  }
+  thead th {
+    padding: 12px 10px;
+    border-bottom: 1px solid rgba(81, 62, 40, 0.15);
+    color: #6a5846;
+    text-align: left;
+    font: 500 11px/1.2 'IBM Plex Mono', monospace;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+  tbody td {
+    padding: 13px 10px;
+    border-bottom: 1px solid rgba(81, 62, 40, 0.08);
+    vertical-align: top;
+  }
+  tbody tr:last-child td { border-bottom: 0; }
+  .td-item { font-weight: 600; color: #1f1813; }
+  .td-mono, .progress-counter, .badge, #shopping-list-text, footer {
+    font-family: 'IBM Plex Mono', monospace;
+  }
+  .star { color: #bb7a26; margin-right: 6px; }
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 92px;
+    padding: 7px 12px;
+    border-radius: 999px;
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+  .badge-ok { background: rgba(58, 102, 67, 0.14); color: #235938; }
+  .badge-warn { background: rgba(184, 126, 49, 0.14); color: #8b5b17; }
+  .badge-alert { background: rgba(154, 54, 54, 0.14); color: #8e2121; }
+  .badge-info { background: rgba(104, 86, 66, 0.12); color: #5a4e42; }
+  .stock-entry {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 5px;
+    border-radius: 999px;
+    background: rgba(255,255,255,0.72);
+    border: 1px solid rgba(81, 62, 40, 0.12);
+  }
+  .stock-input {
+    width: 78px;
+    border: 0;
+    background: transparent;
+    padding: 6px 8px;
+    font: 500 13px/1 'IBM Plex Mono', monospace;
+    color: #1f1813;
+  }
+  .stock-input:focus { outline: none; }
+  .unit-chip {
+    background: rgba(29, 25, 20, 0.08);
+    color: #4f4033;
+  }
+  .tag-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 8px;
+  }
+  .mini-tag {
+    display: inline-flex;
+    align-items: center;
+    border-radius: 999px;
+    padding: 5px 8px;
+    background: rgba(29, 25, 20, 0.07);
+    color: #5b4c3e;
+    font-size: 10px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+  .phase-list, .checklist-items { display: grid; gap: 12px; }
+  .meta-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
+  .meta-item, .governance-item, .editorial-note {
+    padding: 14px;
+    border-radius: 16px;
+    background: rgba(255,255,255,0.58);
+    border: 1px solid rgba(81, 62, 40, 0.08);
+  }
+  .meta-label, .meta-note, .governance-label {
+    display: block;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  .meta-label, .governance-label { color: #765f4b; }
+  .meta-item strong {
+    display: block;
+    margin: 10px 0 4px;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.5rem;
+    color: #1f1813;
+  }
+  .meta-note { color: #6d5c4b; }
+  .control-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 16px;
+  }
+  .btn-secondary, .btn-danger {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 0;
+    border-radius: 999px;
+    padding: 12px 18px;
+    cursor: pointer;
+    font: 500 11px/1 'IBM Plex Mono', monospace;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+  .btn-secondary {
+    background: rgba(29, 25, 20, 0.08);
+    color: #1d1914;
+  }
+  .btn-danger {
+    background: rgba(154, 54, 54, 0.12);
+    color: #8e2121;
+  }
+  .support-copy {
+    margin: 16px 0 0;
+    color: #5d5144;
+    font-size: 14px;
+  }
+  .governance-list {
+    display: grid;
+    gap: 12px;
+  }
+  .governance-item p, .editorial-note p {
+    margin: 8px 0 0;
+    color: #40342a;
+    font-size: 14px;
+    line-height: 1.6;
+  }
+  .editorial-note {
+    margin-top: 14px;
+    background: rgba(184, 126, 49, 0.08);
+    border-color: rgba(184, 126, 49, 0.16);
+  }
+  .editorial-note strong {
+    display: block;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #765f4b;
+  }
+  .phase-item {
+    padding: 14px;
+    border-radius: 16px;
+    background: rgba(255,255,255,0.58);
+    border: 1px solid rgba(81, 62, 40, 0.08);
+  }
+  .phase-item strong { display: block; margin-bottom: 4px; }
+  .protocol-box {
+    color: #f5eee4;
+    background: linear-gradient(140deg, #201914, #493925);
+  }
+  .protocol-box h3, .protocol-box .eyebrow { color: inherit; }
+  .protocol-box p, .protocol-box li { color: #e6daca; }
+  .protocol-box-alt { background: linear-gradient(140deg, #2e2219, #5b4636); }
+  .protocol-box ul { margin: 0; padding-left: 18px; }
+  .checklist-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .check-item {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    padding: 8px 0;
+  }
+  .check-box {
+    width: 22px;
+    height: 22px;
+    min-width: 22px;
+    border: 1px solid rgba(81, 62, 40, 0.16);
+    border-radius: 8px;
+    background: #f8f3eb;
+    color: #235938;
+    cursor: pointer;
+  }
+  .check-box.checked {
+    background: rgba(58, 102, 67, 0.14);
+    border-color: rgba(35, 89, 56, 0.34);
+  }
+  .check-text { font-size: 14px; color: #32281f; }
+  .progress-counter {
+    font-size: 11px;
+    padding: 6px 10px;
+    border-radius: 999px;
+    background: rgba(104, 86, 66, 0.12);
+    color: #6d5c4b;
+  }
+  .progress-done { background: rgba(58, 102, 67, 0.14); color: #235938; }
+  .progress-partial { background: rgba(184, 126, 49, 0.14); color: #8b5b17; }
+  .action-row { margin-bottom: 18px; }
+  .btn-shopping, .modal-actions button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 0;
+    border-radius: 999px;
+    padding: 12px 18px;
+    background: #1d1914;
+    color: #f5eee4;
+    cursor: pointer;
+    font: 500 11px/1 'IBM Plex Mono', monospace;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+  #shopping-modal {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(14, 11, 8, 0.62);
+    padding: 20px;
+  }
+  #shopping-modal[hidden] { display: none; }
+  .modal-box {
+    width: min(720px, 100%);
+    padding: 24px;
+    border-radius: 28px;
+    background: #f7efe3;
+    border: 1px solid rgba(81, 62, 40, 0.12);
+    box-shadow: 0 22px 44px rgba(29, 25, 20, 0.26);
+  }
+  .modal-box h3 {
+    font-size: 2rem;
+    margin-bottom: 18px;
+  }
+  #shopping-list-text {
+    min-height: 260px;
+    padding: 16px;
+    border-radius: 20px;
+    background: #fffaf2;
+    border: 1px solid rgba(81, 62, 40, 0.12);
+    white-space: pre-wrap;
+    color: #30261d;
+    font-size: 13px;
+    line-height: 1.7;
+  }
+  .modal-actions {
+    margin-top: 16px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+  }
+  .modal-actions button:last-child {
+    background: rgba(29, 25, 20, 0.08);
+    color: #1d1914;
+  }
+  .app-toast {
+    position: fixed;
+    right: 18px;
+    bottom: 18px;
+    z-index: 30;
+    max-width: min(320px, calc(100vw - 36px));
+    padding: 14px 16px;
+    border-radius: 18px;
+    border: 1px solid rgba(81, 62, 40, 0.12);
+    background: rgba(247, 239, 227, 0.98);
+    box-shadow: 0 22px 44px rgba(29, 25, 20, 0.18);
+    color: #30261d;
+    font: 500 12px/1.5 'IBM Plex Mono', monospace;
+  }
+  .app-toast-success {
+    border-color: rgba(58, 102, 67, 0.22);
+    background: rgba(234, 244, 236, 0.98);
+  }
+  .app-toast-warn {
+    border-color: rgba(184, 126, 49, 0.2);
+    background: rgba(252, 245, 232, 0.98);
+  }
+  .app-toast-error {
+    border-color: rgba(154, 54, 54, 0.22);
+    background: rgba(251, 238, 238, 0.98);
+  }
+  footer {
+    max-width: 1160px;
+    margin: 0 auto;
+    padding: 0 18px 36px;
+    color: #6d5c4b;
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+  @media (max-width: 980px) {
+    .hero-grid, .grid-2, .checklist-grid, .summary-grid, .meta-grid { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 720px) {
+    header { padding: 28px 18px 24px; }
+    main { padding: 28px 14px 36px; }
+    .modal-box { padding: 18px; }
+    .tab-btn { padding: 10px 12px; }
+    .card, .hero-panel, .protocol-box { padding: 18px; }
+    .control-actions { flex-direction: column; }
+    .btn-shopping, .btn-secondary, .btn-danger { width: 100%; justify-content: center; }
+    .inventory-table { min-width: 0; }
+    .inventory-table thead { display: none; }
+    .inventory-table tbody,
+    .inventory-table tr,
+    .inventory-table td { display: block; width: 100%; }
+    .inventory-table tbody tr {
+      padding: 14px 0;
+      border-bottom: 1px solid rgba(81, 62, 40, 0.08);
+    }
+    .inventory-table tbody tr:last-child { border-bottom: 0; }
+    .inventory-table tbody td {
+      padding: 0;
+      border-bottom: 0;
+      margin-bottom: 12px;
+    }
+    .inventory-table tbody td:last-child { margin-bottom: 0; }
+    .inventory-table tbody td::before {
+      content: attr(data-label);
+      display: block;
+      margin-bottom: 6px;
+      color: #765f4b;
+      font: 500 10px/1.2 'IBM Plex Mono', monospace;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .table-wrap { overflow: visible; }
+  }
 </style>
 </head>
 <body>
-
-<header>
-  <div>
-    <div class="header-label">Gestão de Estoque Rural</div>
-    <h1>Codex de Logística Familiar</h1>
-  </div>
-  <div class="header-meta">6 pessoas · Condomínio Rural · Gestante</div>
-</header>
-
-<nav>
-  <div role="tablist" aria-label="Categorias de estoque">
-    <button class="tab-btn active" role="tab" aria-selected="true" aria-controls="proteinas" id="tab-proteinas" onclick="showTab('proteinas', event)">🥩 Proteínas</button>
-    <button class="tab-btn" role="tab" aria-selected="false" aria-controls="graos" id="tab-graos" onclick="showTab('graos', event)">🌾 Grãos &amp; Secos</button>
-    <button class="tab-btn" role="tab" aria-selected="false" aria-controls="hortifruti" id="tab-hortifruti" onclick="showTab('hortifruti', event)">🥬 Hortifruti</button>
-    <button class="tab-btn" role="tab" aria-selected="false" aria-controls="laticinios" id="tab-laticinios" onclick="showTab('laticinios', event)">🥛 Laticínios &amp; Ovos</button>
-    <button class="tab-btn" role="tab" aria-selected="false" aria-controls="agua" id="tab-agua" onclick="showTab('agua', event)">💧 Água &amp; Higiene</button>
-    <button class="tab-btn" role="tab" aria-selected="false" aria-controls="protocolos" id="tab-protocolos" onclick="showTab('protocolos', event)">📋 Protocolos</button>
-  </div>
-</nav>
-
-<main>
-
-<!-- ===== PROTEÍNAS ===== -->
-<section id="proteinas" class="section active" role="tabpanel" aria-labelledby="tab-proteinas">
-  <div class="section-title">Proteínas Animais</div>
-  <div class="section-sub">Consumo mensal estimado · família de 6 · gestante (+10–20% proteína)</div>
-
-  <div class="alert-box">
-    <strong>⚠ Segurança Alimentar na Gestação:</strong>
-    <ul style="margin-top:6px;padding-left:18px;line-height:2;">
-      <li><strong>Ovos:</strong> Não consumir crus ou mal cozidos — risco de Salmonella. Cozinhar até a gema firme.</li>
-      <li><strong>Peixes a evitar:</strong> Cação, peixe-espada e tubarão têm alto teor de mercúrio. Atum em lata: máx. 2×/semana.</li>
-      <li><strong>Temperatura de cozimento:</strong> Frango ≥ 74°C · Carnes vermelhas ≥ 70°C · Peixes ≥ 63°C.</li>
-      <li><strong>Frios e embutidos:</strong> Evitar presuntos, salames e queijos não pasteurizados durante a gestação.</li>
-    </ul>
-  </div>
-
-  <div class="table-wrap">
-    <table>
-      <thead><tr>
-        <th>Item</th><th>Consumo/mês</th><th>Estoque ideal</th><th>Shelf-life</th><th>Estoque Atual / Dias</th><th>Status</th>
-      </tr></thead>
-      <tbody>
-        <tr>
-          <td><div class="td-item"><span class="star">★</span>Frango (coxa/sobrecoxa)</div><div class="td-note">Congelar em porções de 1 kg</div></td>
-          <td class="td-mono td-consumo">8 kg</td><td class="td-mono">12 kg</td><td class="td-mono">6 meses (congelado)</td>
-          <td><input type="number" class="stock-input" min="0" step="0.5" placeholder="0" oninput="updateStockCalc(this)" aria-label="Estoque atual de frango"><span class="td-days">—</span></td>
-          <td><span class="badge badge-status badge-warn">Amarelo</span></td>
-        </tr>
-        <tr>
-          <td><div class="td-item"><span class="star">★</span>Carne bovina (moída/corte)</div><div class="td-note">Patinho moído + acém</div></td>
-          <td class="td-mono td-consumo">5 kg</td><td class="td-mono">8 kg</td><td class="td-mono">6 meses (congelado)</td>
-          <td><input type="number" class="stock-input" min="0" step="0.5" placeholder="0" oninput="updateStockCalc(this)" aria-label="Estoque atual de carne bovina"><span class="td-days">—</span></td>
-          <td><span class="badge badge-status badge-warn">Amarelo</span></td>
-        </tr>
-        <tr>
-          <td><div class="td-item">Linguiça / Frango temperado</div><div class="td-note">Congelar na embalagem original</div></td>
-          <td class="td-mono td-consumo">2 kg</td><td class="td-mono">4 kg</td><td class="td-mono">3 meses (congelado)</td>
-          <td><input type="number" class="stock-input" min="0" step="0.5" placeholder="0" oninput="updateStockCalc(this)" aria-label="Estoque atual de linguiça"><span class="td-days">—</span></td>
-          <td><span class="badge badge-status badge-ok">Verde</span></td>
-        </tr>
-        <tr>
-          <td><div class="td-item"><span class="star">★</span>Peixe (tilápia/merluza)</div><div class="td-note">Evitar cação/peixe-espada na gestação</div></td>
-          <td class="td-mono td-consumo">3 kg</td><td class="td-mono">6 kg</td><td class="td-mono">6 meses (congelado)</td>
-          <td><input type="number" class="stock-input" min="0" step="0.5" placeholder="0" oninput="updateStockCalc(this)" aria-label="Estoque atual de peixe"><span class="td-days">—</span></td>
-          <td><span class="badge badge-status badge-warn">Amarelo</span></td>
-        </tr>
-        <tr>
-          <td><div class="td-item">Atum em lata</div><div class="td-note">Gestante: máx. 2 latas/semana</div></td>
-          <td class="td-mono td-consumo">8 latas</td><td class="td-mono">24 latas</td><td class="td-mono">3–5 anos</td>
-          <td><input type="number" class="stock-input" min="0" step="1" placeholder="0" oninput="updateStockCalc(this)" aria-label="Estoque atual de atum"><span class="td-days">—</span></td>
-          <td><span class="badge badge-status badge-ok">Verde</span></td>
-        </tr>
-        <tr>
-          <td><div class="td-item">Sardinha em lata</div></td>
-          <td class="td-mono td-consumo">4 latas</td><td class="td-mono">12 latas</td><td class="td-mono">3–5 anos</td>
-          <td><input type="number" class="stock-input" min="0" step="1" placeholder="0" oninput="updateStockCalc(this)" aria-label="Estoque atual de sardinha"><span class="td-days">—</span></td>
-          <td><span class="badge badge-status badge-ok">Verde</span></td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-</section>
-
-<!-- ===== GRÃOS & SECOS ===== -->
-<section id="graos" class="section" role="tabpanel" aria-labelledby="tab-graos" hidden>
-  <div class="section-title">Grãos, Secos &amp; Farináceos</div>
-  <div class="section-sub">Base calórica · longa durabilidade · prioridade de estoque</div>
-
-  <div class="table-wrap">
-    <table>
-      <thead><tr>
-        <th>Item</th><th>Consumo/mês</th><th>Estoque ideal</th><th>Shelf-life</th><th>Estoque Atual / Dias</th><th>Status</th>
-      </tr></thead>
-      <tbody>
-        <tr>
-          <td><div class="td-item"><span class="star">★</span>Arroz branco (5 kg)</div></td>
-          <td class="td-mono td-consumo">6 kg</td><td class="td-mono">18 kg</td><td class="td-mono">18–24 meses</td>
-          <td><input type="number" class="stock-input" min="0" step="1" placeholder="0" oninput="updateStockCalc(this)" aria-label="Estoque atual de arroz"><span class="td-days">—</span></td>
-          <td><span class="badge badge-status badge-ok">Verde</span></td>
-        </tr>
-        <tr>
-          <td><div class="td-item"><span class="star">★</span>Feijão carioca / preto</div></td>
-          <td class="td-mono td-consumo">4 kg</td><td class="td-mono">12 kg</td><td class="td-mono">12 meses</td>
-          <td><input type="number" class="stock-input" min="0" step="1" placeholder="0" oninput="updateStockCalc(this)" aria-label="Estoque atual de feijão"><span class="td-days">—</span></td>
-          <td><span class="badge badge-status badge-ok">Verde</span></td>
-        </tr>
-        <tr>
-          <td><div class="td-item">Macarrão (espaguete/penne)</div></td>
-          <td class="td-mono td-consumo">3 kg</td><td class="td-mono">9 kg</td><td class="td-mono">24 meses</td>
-          <td><input type="number" class="stock-input" min="0" step="1" placeholder="0" oninput="updateStockCalc(this)" aria-label="Estoque atual de macarrão"><span class="td-days">—</span></td>
-          <td><span class="badge badge-status badge-warn">Amarelo</span></td>
-        </tr>
-        <tr>
-          <td><div class="td-item">Farinha de trigo</div></td>
-          <td class="td-mono td-consumo">2 kg</td><td class="td-mono">6 kg</td><td class="td-mono">6–12 meses</td>
-          <td><input type="number" class="stock-input" min="0" step="0.5" placeholder="0" oninput="updateStockCalc(this)" aria-label="Estoque atual de farinha"><span class="td-days">—</span></td>
-          <td><span class="badge badge-status badge-ok">Verde</span></td>
-        </tr>
-        <tr>
-          <td><div class="td-item">Lentilha / Grão-de-bico</div><div class="td-note">Rico em ferro — importante na gestação</div></td>
-          <td class="td-mono td-consumo">1 kg</td><td class="td-mono">3 kg</td><td class="td-mono">18 meses</td>
-          <td><input type="number" class="stock-input" min="0" step="0.5" placeholder="0" oninput="updateStockCalc(this)" aria-label="Estoque atual de lentilha"><span class="td-days">—</span></td>
-          <td><span class="badge badge-status badge-warn">Amarelo</span></td>
-        </tr>
-        <tr>
-          <td><div class="td-item">Aveia em flocos</div><div class="td-note">Fibras + ferro + café da manhã</div></td>
-          <td class="td-mono td-consumo">1 kg</td><td class="td-mono">3 kg</td><td class="td-mono">12 meses</td>
-          <td><input type="number" class="stock-input" min="0" step="0.5" placeholder="0" oninput="updateStockCalc(this)" aria-label="Estoque atual de aveia"><span class="td-days">—</span></td>
-          <td><span class="badge badge-status badge-ok">Verde</span></td>
-        </tr>
-        <tr>
-          <td><div class="td-item"><span class="star">★</span>Açúcar cristal</div></td>
-          <td class="td-mono td-consumo">3 kg</td><td class="td-mono">9 kg</td><td class="td-mono">Indefinido</td>
-          <td><input type="number" class="stock-input" min="0" step="1" placeholder="0" oninput="updateStockCalc(this)" aria-label="Estoque atual de açúcar"><span class="td-days">—</span></td>
-          <td><span class="badge badge-status badge-ok">Verde</span></td>
-        </tr>
-        <tr>
-          <td><div class="td-item"><span class="star">★</span>Sal refinado / grosso</div></td>
-          <td class="td-mono td-consumo">0.5 kg</td><td class="td-mono">3 kg</td><td class="td-mono">Indefinido</td>
-          <td><input type="number" class="stock-input" min="0" step="0.5" placeholder="0" oninput="updateStockCalc(this)" aria-label="Estoque atual de sal"><span class="td-days">—</span></td>
-          <td><span class="badge badge-status badge-ok">Verde</span></td>
-        </tr>
-        <tr>
-          <td><div class="td-item">Azeite de oliva</div></td>
-          <td class="td-mono td-consumo">1 L</td><td class="td-mono">3 L</td><td class="td-mono">18–24 meses</td>
-          <td><input type="number" class="stock-input" min="0" step="0.5" placeholder="0" oninput="updateStockCalc(this)" aria-label="Estoque atual de azeite"><span class="td-days">—</span></td>
-          <td><span class="badge badge-status badge-warn">Amarelo</span></td>
-        </tr>
-        <tr>
-          <td><div class="td-item">Óleo de soja / girassol</div></td>
-          <td class="td-mono td-consumo">1.5 L</td><td class="td-mono">4 L</td><td class="td-mono">12 meses</td>
-          <td><input type="number" class="stock-input" min="0" step="0.5" placeholder="0" oninput="updateStockCalc(this)" aria-label="Estoque atual de óleo"><span class="td-days">—</span></td>
-          <td><span class="badge badge-status badge-ok">Verde</span></td>
-        </tr>
-        <tr>
-          <td><div class="td-item">Extrato / Molho de tomate (lata)</div></td>
-          <td class="td-mono td-consumo">8 unid</td><td class="td-mono">24 unid</td><td class="td-mono">24–36 meses</td>
-          <td><input type="number" class="stock-input" min="0" step="1" placeholder="0" oninput="updateStockCalc(this)" aria-label="Estoque atual de molho de tomate"><span class="td-days">—</span></td>
-          <td><span class="badge badge-status badge-ok">Verde</span></td>
-        </tr>
-        <tr>
-          <td><div class="td-item">Café moído</div></td>
-          <td class="td-mono td-consumo">500 g</td><td class="td-mono">1.5 kg</td><td class="td-mono">6–12 meses</td>
-          <td><input type="number" class="stock-input" min="0" step="0.5" placeholder="0" oninput="updateStockCalc(this)" aria-label="Estoque atual de café"><span class="td-days">—</span></td>
-          <td><span class="badge badge-status badge-warn">Amarelo</span></td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-</section>
-
-<!-- ===== HORTIFRUTI ===== -->
-<section id="hortifruti" class="section" role="tabpanel" aria-labelledby="tab-hortifruti" hidden>
-  <div class="section-title">Hortifruti</div>
-  <div class="section-sub">Preferir produção própria/local · shelf-life curto · reabastecer semanalmente</div>
-
-  <div class="alert-box">
-    <strong>📦 Estratégia de Estoque para Hortifruti:</strong>
-    Itens frescos têm shelf-life curto. Priorize: (1) produção própria no condomínio, (2) compra semanal na cidade mais próxima, (3) versões conservadas (lata/congelado) como backup de 30+ dias.
-  </div>
-
-  <div class="table-wrap">
-    <table>
-      <thead><tr>
-        <th>Item</th><th>Consumo/mês</th><th>Estoque ideal</th><th>Shelf-life</th><th>Estoque Atual / Dias</th><th>Status</th>
-      </tr></thead>
-      <tbody>
-        <tr>
-          <td><div class="td-item"><span class="star">★</span>Tomate</div><div class="td-note">Amadurece fora da geladeira</div></td>
-          <td class="td-mono td-consumo">4 kg</td><td class="td-mono">5 kg</td><td class="td-mono">7–14 dias</td>
-          <td><input type="number" class="stock-input" min="0" step="0.5" placeholder="0" oninput="updateStockCalc(this)" aria-label="Estoque atual de tomate"><span class="td-days">—</span></td>
-          <td><span class="badge badge-status badge-warn">Amarelo</span></td>
-        </tr>
-        <tr>
-          <td><div class="td-item"><span class="star">★</span>Cebola</div><div class="td-note">Armazenar em local seco e escuro</div></td>
-          <td class="td-mono td-consumo">3 kg</td><td class="td-mono">6 kg</td><td class="td-mono">1–2 meses</td>
-          <td><input type="number" class="stock-input" min="0" step="0.5" placeholder="0" oninput="updateStockCalc(this)" aria-label="Estoque atual de cebola"><span class="td-days">—</span></td>
-          <td><span class="badge badge-status badge-ok">Verde</span></td>
-        </tr>
-        <tr>
-          <td><div class="td-item"><span class="star">★</span>Alho</div></td>
-          <td class="td-mono td-consumo">300 g</td><td class="td-mono">900 g</td><td class="td-mono">3–5 meses</td>
-          <td><input type="number" class="stock-input" min="0" step="0.1" placeholder="0" oninput="updateStockCalc(this)" aria-label="Estoque atual de alho"><span class="td-days">—</span></td>
-          <td><span class="badge badge-status badge-ok">Verde</span></td>
-        </tr>
-        <tr>
-          <td><div class="td-item"><span class="star">★</span>Batata</div><div class="td-note">Armazenar no escuro para não brotar</div></td>
-          <td class="td-mono td-consumo">5 kg</td><td class="td-mono">10 kg</td><td class="td-mono">3–5 semanas</td>
-          <td><input type="number" class="stock-input" min="0" step="0.5" placeholder="0" oninput="updateStockCalc(this)" aria-label="Estoque atual de batata"><span class="td-days">—</span></td>
-          <td><span class="badge badge-status badge-warn">Amarelo</span></td>
-        </tr>
-        <tr>
-          <td><div class="td-item">Cenoura</div><div class="td-note">Rica em vitamina A — importante na gestação</div></td>
-          <td class="td-mono td-consumo">3 kg</td><td class="td-mono">5 kg</td><td class="td-mono">3–4 semanas (refrigerado)</td>
-          <td><input type="number" class="stock-input" min="0" step="0.5" placeholder="0" oninput="updateStockCalc(this)" aria-label="Estoque atual de cenoura"><span class="td-days">—</span></td>
-          <td><span class="badge badge-status badge-warn">Amarelo</span></td>
-        </tr>
-        <tr>
-          <td><div class="td-item">Abóbora / Moranga</div><div class="td-note">Longa durabilidade se inteira</div></td>
-          <td class="td-mono td-consumo">3 kg</td><td class="td-mono">6 kg</td><td class="td-mono">2–3 meses (inteira)</td>
-          <td><input type="number" class="stock-input" min="0" step="0.5" placeholder="0" oninput="updateStockCalc(this)" aria-label="Estoque atual de abóbora"><span class="td-days">—</span></td>
-          <td><span class="badge badge-status badge-ok">Verde</span></td>
-        </tr>
-        <tr>
-          <td><div class="td-item">Folhosas (couve, espinafre, alface)</div><div class="td-note">Priorizar produção própria ou congelar couve/espinafre</div></td>
-          <td class="td-mono td-consumo">4 maços</td><td class="td-mono">5 maços</td><td class="td-mono">3–5 dias</td>
-          <td><input type="number" class="stock-input" min="0" step="1" placeholder="0" oninput="updateStockCalc(this)" aria-label="Estoque atual de folhosas"><span class="td-days">—</span></td>
-          <td><span class="badge badge-status badge-alert">Vermelho</span></td>
-        </tr>
-        <tr>
-          <td><div class="td-item"><span class="star">★</span>Banana</div><div class="td-note">Prata ou nanica — energia rápida</div></td>
-          <td class="td-mono td-consumo">5 kg</td><td class="td-mono">6 kg</td><td class="td-mono">5–10 dias</td>
-          <td><input type="number" class="stock-input" min="0" step="0.5" placeholder="0" oninput="updateStockCalc(this)" aria-label="Estoque atual de banana"><span class="td-days">—</span></td>
-          <td><span class="badge badge-status badge-warn">Amarelo</span></td>
-        </tr>
-        <tr>
-          <td><div class="td-item">Maçã / Pera</div></td>
-          <td class="td-mono td-consumo">3 kg</td><td class="td-mono">4 kg</td><td class="td-mono">3–4 semanas (refrigerado)</td>
-          <td><input type="number" class="stock-input" min="0" step="0.5" placeholder="0" oninput="updateStockCalc(this)" aria-label="Estoque atual de maçã"><span class="td-days">—</span></td>
-          <td><span class="badge badge-status badge-warn">Amarelo</span></td>
-        </tr>
-        <tr>
-          <td><div class="td-item">Limão / Laranja</div><div class="td-note">Vitamina C — melhora absorção de ferro na gestação</div></td>
-          <td class="td-mono td-consumo">2 kg</td><td class="td-mono">4 kg</td><td class="td-mono">2–3 semanas</td>
-          <td><input type="number" class="stock-input" min="0" step="0.5" placeholder="0" oninput="updateStockCalc(this)" aria-label="Estoque atual de limão/laranja"><span class="td-days">—</span></td>
-          <td><span class="badge badge-status badge-warn">Amarelo</span></td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-</section>
-
-<!-- ===== LATICÍNIOS & OVOS ===== -->
-<section id="laticinios" class="section" role="tabpanel" aria-labelledby="tab-laticinios" hidden>
-  <div class="section-title">Laticínios &amp; Ovos</div>
-  <div class="section-sub">Cálcio, vitamina D e proteína · Gestante necessita ~1.000 mg de cálcio/dia</div>
-
-  <div class="alert-box">
-    <strong>🧀 Atenção na Gestação:</strong>
-    Consumir apenas laticínios pasteurizados. Evitar queijos moles não pasteurizados (brie, camembert, queijo artesanal cru). Iogurte e leite pasteurizados são seguros e recomendados.
-  </div>
-
-  <div class="table-wrap">
-    <table>
-      <thead><tr>
-        <th>Item</th><th>Consumo/mês</th><th>Estoque ideal</th><th>Shelf-life</th><th>Estoque Atual / Dias</th><th>Status</th>
-      </tr></thead>
-      <tbody>
-        <tr>
-          <td><div class="td-item"><span class="star">★</span>Leite UHT integral</div><div class="td-note">Longa vida · não precisa de refrigeração</div></td>
-          <td class="td-mono td-consumo">30 L</td><td class="td-mono">45 L</td><td class="td-mono">6 meses (fechado)</td>
-          <td><input type="number" class="stock-input" min="0" step="1" placeholder="0" oninput="updateStockCalc(this)" aria-label="Estoque atual de leite UHT"><span class="td-days">—</span></td>
-          <td><span class="badge badge-status badge-ok">Verde</span></td>
-        </tr>
-        <tr>
-          <td><div class="td-item"><span class="star">★</span>Ovos (dúzias)</div><div class="td-note">Proteína completa · fonte de colina para o feto</div></td>
-          <td class="td-mono td-consumo">5 dz</td><td class="td-mono">8 dz</td><td class="td-mono">3–4 semanas (refrigerado)</td>
-          <td><input type="number" class="stock-input" min="0" step="0.5" placeholder="0" oninput="updateStockCalc(this)" aria-label="Estoque atual de ovos"><span class="td-days">—</span></td>
-          <td><span class="badge badge-status badge-warn">Amarelo</span></td>
-        </tr>
-        <tr>
-          <td><div class="td-item"><span class="star">★</span>Queijo muçarela / prato</div><div class="td-note">Pasteurizado · congelar em fatias</div></td>
-          <td class="td-mono td-consumo">1.5 kg</td><td class="td-mono">3 kg</td><td class="td-mono">4–6 semanas (refrigerado)</td>
-          <td><input type="number" class="stock-input" min="0" step="0.5" placeholder="0" oninput="updateStockCalc(this)" aria-label="Estoque atual de queijo"><span class="td-days">—</span></td>
-          <td><span class="badge badge-status badge-warn">Amarelo</span></td>
-        </tr>
-        <tr>
-          <td><div class="td-item">Iogurte natural / grego</div><div class="td-note">Probióticos + cálcio</div></td>
-          <td class="td-mono td-consumo">8 unid</td><td class="td-mono">12 unid</td><td class="td-mono">3–4 semanas</td>
-          <td><input type="number" class="stock-input" min="0" step="1" placeholder="0" oninput="updateStockCalc(this)" aria-label="Estoque atual de iogurte"><span class="td-days">—</span></td>
-          <td><span class="badge badge-status badge-warn">Amarelo</span></td>
-        </tr>
-        <tr>
-          <td><div class="td-item">Manteiga</div><div class="td-note">Congelar para longa duração</div></td>
-          <td class="td-mono td-consumo">500 g</td><td class="td-mono">1.5 kg</td><td class="td-mono">9 meses (congelado)</td>
-          <td><input type="number" class="stock-input" min="0" step="0.5" placeholder="0" oninput="updateStockCalc(this)" aria-label="Estoque atual de manteiga"><span class="td-days">—</span></td>
-          <td><span class="badge badge-status badge-ok">Verde</span></td>
-        </tr>
-        <tr>
-          <td><div class="td-item">Leite em pó</div><div class="td-note">Backup para falta de UHT</div></td>
-          <td class="td-mono td-consumo">500 g</td><td class="td-mono">2 kg</td><td class="td-mono">24 meses</td>
-          <td><input type="number" class="stock-input" min="0" step="0.5" placeholder="0" oninput="updateStockCalc(this)" aria-label="Estoque atual de leite em pó"><span class="td-days">—</span></td>
-          <td><span class="badge badge-status badge-ok">Verde</span></td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-</section>
-
-<!-- ===== ÁGUA & HIGIENE ===== -->
-<section id="agua" class="section" role="tabpanel" aria-labelledby="tab-agua" hidden>
-  <div class="section-title">Água &amp; Higiene</div>
-  <div class="section-sub">2 L/pessoa/dia = 12 L/dia para 6 pessoas · Gestante: 2.5 L/dia mínimo</div>
-
-  <div class="table-wrap">
-    <table>
-      <thead><tr>
-        <th>Item</th><th>Consumo/mês</th><th>Estoque ideal (45d)</th><th>Shelf-life</th><th>Estoque Atual / Dias</th><th>Status</th>
-      </tr></thead>
-      <tbody>
-        <tr>
-          <td><div class="td-item"><span class="star">★</span>Água mineral garrafão 20L</div><div class="td-note">6 pes × 2L/dia × 30d ÷ 20L ≈ 18/mês</div></td>
-          <td class="td-mono td-consumo">18</td><td class="td-mono">27 garrafões</td><td class="td-mono">Indefinido (selado)</td>
-          <td><input type="number" class="stock-input" min="0" step="1" placeholder="0" oninput="updateStockCalc(this)" aria-label="Estoque atual de garrafão de água"><span class="td-days">—</span></td>
-          <td><span class="badge badge-status badge-alert">Vermelho</span></td>
-        </tr>
-        <tr>
-          <td><div class="td-item">Filtro / refil de purificador</div></td>
-          <td class="td-mono td-consumo">0.17</td><td class="td-mono">2 refis</td><td class="td-mono">2+ anos (não instalado)</td>
-          <td><input type="number" class="stock-input" min="0" step="1" placeholder="0" oninput="updateStockCalc(this)" aria-label="Estoque atual de refil de filtro"><span class="td-days">—</span></td>
-          <td><span class="badge badge-status badge-warn">Amarelo</span></td>
-        </tr>
-        <tr>
-          <td><div class="td-item">Pastilha de cloro para água</div><div class="td-note">Backup de purificação em emergência</div></td>
-          <td class="td-mono td-consumo">0</td><td class="td-mono">2 caixas</td><td class="td-mono">5 anos</td>
-          <td><input type="number" class="stock-input" min="0" step="1" placeholder="0" oninput="updateStockCalc(this)" aria-label="Estoque atual de pastilha de cloro"><span class="td-days">—</span></td>
-          <td><span class="badge badge-status badge-info">Backup</span></td>
-        </tr>
-        <tr>
-          <td><div class="td-item"><span class="star">★</span>Álcool 70% (1L)</div></td>
-          <td class="td-mono td-consumo">1</td><td class="td-mono">2 L</td><td class="td-mono">24 meses</td>
-          <td><input type="number" class="stock-input" min="0" step="0.5" placeholder="0" oninput="updateStockCalc(this)" aria-label="Estoque atual de álcool 70%"><span class="td-days">—</span></td>
-          <td><span class="badge badge-status badge-warn">Amarelo</span></td>
-        </tr>
-        <tr>
-          <td><div class="td-item"><span class="star">★</span>Papel higiênico</div><div class="td-note">12 rolos/semana = 48/mês</div></td>
-          <td class="td-mono td-consumo">48</td><td class="td-mono">72 rolos</td><td class="td-mono">Indefinido</td>
-          <td><input type="number" class="stock-input" min="0" step="1" placeholder="0" oninput="updateStockCalc(this)" aria-label="Estoque atual de papel higiênico"><span class="td-days">—</span></td>
-          <td><span class="badge badge-status badge-warn">Amarelo</span></td>
-        </tr>
-        <tr>
-          <td><div class="td-item">Sabão em barra</div></td>
-          <td class="td-mono td-consumo">4</td><td class="td-mono">6 unid</td><td class="td-mono">12 meses</td>
-          <td><input type="number" class="stock-input" min="0" step="1" placeholder="0" oninput="updateStockCalc(this)" aria-label="Estoque atual de sabão em barra"><span class="td-days">—</span></td>
-          <td><span class="badge badge-status badge-ok">Verde</span></td>
-        </tr>
-        <tr>
-          <td><div class="td-item">Detergente líquido</div></td>
-          <td class="td-mono td-consumo">2</td><td class="td-mono">3 unid</td><td class="td-mono">24 meses</td>
-          <td><input type="number" class="stock-input" min="0" step="1" placeholder="0" oninput="updateStockCalc(this)" aria-label="Estoque atual de detergente"><span class="td-days">—</span></td>
-          <td><span class="badge badge-status badge-ok">Verde</span></td>
-        </tr>
-        <tr>
-          <td><div class="td-item"><span class="star">★</span>Absorvente (uso gestacional)</div></td>
-          <td class="td-mono td-consumo">2</td><td class="td-mono">4 pacotes</td><td class="td-mono">5+ anos</td>
-          <td><input type="number" class="stock-input" min="0" step="1" placeholder="0" oninput="updateStockCalc(this)" aria-label="Estoque atual de absorvente"><span class="td-days">—</span></td>
-          <td><span class="badge badge-status badge-warn">Amarelo</span></td>
-        </tr>
-        <tr>
-          <td><div class="td-item"><span class="star">★</span>Paracetamol 750mg</div><div class="td-note">Analgésico permitido na gestação</div></td>
-          <td class="td-mono td-consumo">0</td><td class="td-mono">2 caixas</td><td class="td-mono">2 anos</td>
-          <td><input type="number" class="stock-input" min="0" step="1" placeholder="0" oninput="updateStockCalc(this)" aria-label="Estoque atual de paracetamol"><span class="td-days">—</span></td>
-          <td><span class="badge badge-status badge-warn">Amarelo</span></td>
-        </tr>
-        <tr>
-          <td><div class="td-item"><span class="star">★</span>Dipirona sódica</div></td>
-          <td class="td-mono td-consumo">0</td><td class="td-mono">2 caixas</td><td class="td-mono">2 anos</td>
-          <td><input type="number" class="stock-input" min="0" step="1" placeholder="0" oninput="updateStockCalc(this)" aria-label="Estoque atual de dipirona"><span class="td-days">—</span></td>
-          <td><span class="badge badge-status badge-warn">Amarelo</span></td>
-        </tr>
-        <tr>
-          <td><div class="td-item">Antiácido (Omeprazol/Sal de Fruta)</div></td>
-          <td class="td-mono td-consumo">0</td><td class="td-mono">1 caixa</td><td class="td-mono">2 anos</td>
-          <td><input type="number" class="stock-input" min="0" step="1" placeholder="0" oninput="updateStockCalc(this)" aria-label="Estoque atual de antiácido"><span class="td-days">—</span></td>
-          <td><span class="badge badge-status badge-warn">Amarelo</span></td>
-        </tr>
-        <tr>
-          <td><div class="td-item">Soro fisiológico 0.9%</div></td>
-          <td class="td-mono td-consumo">0</td><td class="td-mono">4 frascos</td><td class="td-mono">3 anos</td>
-          <td><input type="number" class="stock-input" min="0" step="1" placeholder="0" oninput="updateStockCalc(this)" aria-label="Estoque atual de soro fisiológico"><span class="td-days">—</span></td>
-          <td><span class="badge badge-status badge-warn">Amarelo</span></td>
-        </tr>
-        <tr>
-          <td><div class="td-item">Band-aids / Kit de curativo</div></td>
-          <td class="td-mono td-consumo">0</td><td class="td-mono">2 caixas</td><td class="td-mono">5 anos</td>
-          <td><input type="number" class="stock-input" min="0" step="1" placeholder="0" oninput="updateStockCalc(this)" aria-label="Estoque atual de band-aids"><span class="td-days">—</span></td>
-          <td><span class="badge badge-status badge-warn">Amarelo</span></td>
-        </tr>
-        <tr>
-          <td><div class="td-item"><span class="star">★</span>Termômetro digital</div></td>
-          <td class="td-mono td-consumo">0</td><td class="td-mono">1 unid</td><td class="td-mono">Permanente</td>
-          <td><input type="number" class="stock-input" min="0" step="1" placeholder="0" oninput="updateStockCalc(this)" aria-label="Estoque atual de termômetro"><span class="td-days">—</span></td>
-          <td><span class="badge badge-status badge-warn">Amarelo</span></td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-
-  <div class="checklist-card">
-    <div class="checklist-header">
-      <div class="checklist-title">🚨 Checklist de Emergência Hídrica</div>
-      <span class="progress-counter"></span>
+  <header>
+    <div class="header-shell">
+      <div class="header-copy">
+        <div class="header-label">Manual operacional rural · local-first</div>
+        <h1>Codex de Resiliência Doméstica</h1>
+        <p>O projeto agora passa a ler um documento mestre de domínio: restrições SG/SL, compra híbrida, freezer, bunker hermético e contingência doméstica.</p>
+      </div>
+      <div class="header-meta" id="header-meta"></div>
     </div>
-    <div class="check-item">
-      <div class="check-box" role="checkbox" aria-checked="false" tabindex="0" onclick="toggleCheck(this)"></div>
-      <span class="check-text">Reserva mínima de 72h em garrafas seladas em caso de falta de abastecimento</span>
-    </div>
-    <div class="check-item">
-      <div class="check-box" role="checkbox" aria-checked="false" tabindex="0" onclick="toggleCheck(this)"></div>
-      <span class="check-text">Verificar filtro/purificador mensalmente — trocar refil conforme prazo do fabricante</span>
-    </div>
-    <div class="check-item">
-      <div class="check-box" role="checkbox" aria-checked="false" tabindex="0" onclick="toggleCheck(this)"></div>
-      <span class="check-text">Manter pastilhas de cloro como backup de purificação (1 pastilha/20L de água)</span>
-    </div>
-    <div class="check-item">
-      <div class="check-box" role="checkbox" aria-checked="false" tabindex="0" onclick="toggleCheck(this)"></div>
-      <span class="check-text">Em caso de isolamento: prioridade absoluta à hidratação da gestante (2.5L/dia mínimo)</span>
-    </div>
-    <div class="check-item">
-      <div class="check-box" role="checkbox" aria-checked="false" tabindex="0" onclick="toggleCheck(this)"></div>
-      <span class="check-text">Localização e contato do serviço de abastecimento de água da região anotados</span>
-    </div>
-  </div>
-</section>
+  </header>
 
-<!-- ===== PROTOCOLOS ===== -->
-<section id="protocolos" class="section" role="tabpanel" aria-labelledby="tab-protocolos" hidden>
-  <div class="section-title">Protocolos Operacionais</div>
-  <div class="section-sub">Rotinas de reabastecimento · emergências · prioridades gestacionais</div>
+  <nav>
+    <div class="nav-shell">
+      <div id="nav-tabs" role="tablist" aria-label="Seções do sistema"></div>
+    </div>
+  </nav>
 
-  <button class="btn-shopping" onclick="gerarLista()">📋 Gerar Lista de Compras</button>
+  <main id="app-main"></main>
 
-  <div class="protocol-box">
-    <h3>Protocolo de Reabastecimento Mensal</h3>
-    <ul>
-      <li>Semana 1: Verificar estoques de proteínas e laticínios (perecíveis)</li>
-      <li>Semana 2: Repor grãos e secos abaixo do ponto de ressuprimento</li>
-      <li>Semana 3: Compra de hortifruti para a semana + verificar água</li>
-      <li>Semana 4: Revisão geral de estoques e planejamento do mês seguinte</li>
-    </ul>
-  </div>
+  <footer>
+    Documento mestre operacional · último registro <span id="state-last-updated">Nunca</span> · atualizado em <span id="update-date"></span>
+  </footer>
 
-  <div class="protocol-box" style="background:#4a2f1a;">
-    <h3>🤰 Protocolo Gestacional — Prioridades</h3>
-    <ul>
-      <li>Ferro: feijão + lentilha + carne vermelha + vitamina C para absorção</li>
-      <li>Cálcio: 3 porções de laticínios/dia (leite, queijo, iogurte)</li>
-      <li>Ácido fólico: folhosas escuras, laranja, feijão</li>
-      <li>Proteína: aumentar 10–20 g/dia em relação ao normal (frango, ovos, leguminosas)</li>
-      <li>Hidratação: mínimo 2.5L/dia — aumentar no calor</li>
-      <li>Evitar: ovos crus, peixes com mercúrio, frios não pasteurizados, álcool</li>
-    </ul>
-  </div>
-
-  <div class="checklist-card">
-    <div class="checklist-header">
-      <div class="checklist-title">✅ Rotina Semanal de Verificação</div>
-      <span class="progress-counter"></span>
-    </div>
-    <div class="check-item">
-      <div class="check-box" role="checkbox" aria-checked="false" tabindex="0" onclick="toggleCheck(this)"></div>
-      <span class="check-text">Atualizar estoque atual nas tabelas de Proteínas</span>
-    </div>
-    <div class="check-item">
-      <div class="check-box" role="checkbox" aria-checked="false" tabindex="0" onclick="toggleCheck(this)"></div>
-      <span class="check-text">Verificar validade dos itens com shelf-life mais curto (laticínios, ovos)</span>
-    </div>
-    <div class="check-item">
-      <div class="check-box" role="checkbox" aria-checked="false" tabindex="0" onclick="toggleCheck(this)"></div>
-      <span class="check-text">Conferir nível dos garrafões de água potável</span>
-    </div>
-    <div class="check-item">
-      <div class="check-box" role="checkbox" aria-checked="false" tabindex="0" onclick="toggleCheck(this)"></div>
-      <span class="check-text">Gerar lista de compras para itens com status Vermelho ou Amarelo</span>
-    </div>
-    <div class="check-item">
-      <div class="check-box" role="checkbox" aria-checked="false" tabindex="0" onclick="toggleCheck(this)"></div>
-      <span class="check-text">Verificar medicamentos de emergência (validade e quantidade)</span>
+  <div id="shopping-modal" hidden>
+    <div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="shopping-list-title">
+      <h3 id="shopping-list-title">Lista de compras</h3>
+      <pre id="shopping-list-text"></pre>
+      <div class="modal-actions">
+        <button type="button" data-action="copy-list">Copiar</button>
+        <button type="button" data-action="modal-close">Fechar</button>
+      </div>
     </div>
   </div>
 
-  <div class="checklist-card">
-    <div class="checklist-header">
-      <div class="checklist-title">🌩 Checklist de Emergência Rural (Isolamento 7+ dias)</div>
-      <span class="progress-counter"></span>
-    </div>
-    <div class="check-item">
-      <div class="check-box" role="checkbox" aria-checked="false" tabindex="0" onclick="toggleCheck(this)"></div>
-      <span class="check-text">Água potável suficiente para 7 dias confirmada (84L mínimo)</span>
-    </div>
-    <div class="check-item">
-      <div class="check-box" role="checkbox" aria-checked="false" tabindex="0" onclick="toggleCheck(this)"></div>
-      <span class="check-text">Proteínas congeladas suficientes para 7 dias (frango + carne + peixe)</span>
-    </div>
-    <div class="check-item">
-      <div class="check-box" role="checkbox" aria-checked="false" tabindex="0" onclick="toggleCheck(this)"></div>
-      <span class="check-text">Gerador ou energia de backup para manter freezer funcionando</span>
-    </div>
-    <div class="check-item">
-      <div class="check-box" role="checkbox" aria-checked="false" tabindex="0" onclick="toggleCheck(this)"></div>
-      <span class="check-text">Contato de obstetra salvo e plano para emergência gestacional definido</span>
-    </div>
-    <div class="check-item">
-      <div class="check-box" role="checkbox" aria-checked="false" tabindex="0" onclick="toggleCheck(this)"></div>
-      <span class="check-text">Kit de medicamentos de emergência verificado e completo</span>
-    </div>
-    <div class="check-item">
-      <div class="check-box" role="checkbox" aria-checked="false" tabindex="0" onclick="toggleCheck(this)"></div>
-      <span class="check-text">Rota de saída e veículo com combustível suficiente para cidade mais próxima</span>
-    </div>
-  </div>
-</section>
+  <input id="backup-import-input" type="file" accept=".json,application/json" hidden>
+  <div id="app-toast" class="app-toast" hidden aria-live="polite"></div>
 
-</main>
-
-<footer>Codex de Logística Familiar · Atualizado em <span id="update-date"></span> · Dados salvos localmente no navegador</footer>
-
-<!-- MODAL DE LISTA DE COMPRAS -->
-<div id="shopping-modal" hidden role="dialog" aria-modal="true" aria-labelledby="modal-title" tabindex="-1">
-  <div class="modal-backdrop" onclick="fecharModal()"></div>
-  <div class="modal-box">
-    <h3 id="modal-title">Lista de Compras</h3>
-    <pre id="shopping-list-text"></pre>
-    <div class="modal-actions">
-      <button id="copy-btn" onclick="copiarLista()">Copiar</button>
-      <button onclick="fecharModal()">Fechar</button>
-    </div>
-  </div>
-</div>
-
-<script>
-// Tab navigation
-function showTab(id, e) {
-  document.querySelectorAll('.section').forEach(s => {
-    s.classList.remove('active');
-    s.setAttribute('hidden', '');
-  });
-  document.querySelectorAll('.tab-btn').forEach(b => {
-    b.classList.remove('active');
-    b.setAttribute('aria-selected', 'false');
-  });
-  document.getElementById(id).classList.add('active');
-  document.getElementById(id).removeAttribute('hidden');
-  const btn = e ? e.currentTarget : document.querySelector('[aria-controls="' + id + '"]');
-  if (btn) { btn.classList.add('active'); btn.setAttribute('aria-selected', 'true'); }
-  window.location.hash = id;
-}
-
-// Restore tab from URL hash
-window.addEventListener('DOMContentLoaded', () => {
-  const hash = window.location.hash.replace('#', '');
-  const validTabs = ['proteinas', 'graos', 'hortifruti', 'laticinios', 'agua', 'protocolos'];
-  if (hash && validTabs.includes(hash)) showTab(hash);
-  restoreChecklistState();
-  restoreStockValues();
-  updateAllProgress();
-  const d = document.getElementById('update-date');
-  if (d) d.textContent = new Date().toLocaleDateString('pt-BR');
-});
-
-// Checklist persistence
-function toggleCheck(el) {
-  const isChecked = el.getAttribute('aria-checked') === 'true';
-  el.setAttribute('aria-checked', String(!isChecked));
-  el.classList.toggle('checked', !isChecked);
-  el.textContent = !isChecked ? '✓' : '';
-  saveChecklistState();
-  updateProgress(el.closest('.checklist-card'));
-}
-
-function saveChecklistState() {
-  const state = {};
-  document.querySelectorAll('.check-box').forEach((box, i) => {
-    state[i] = box.getAttribute('aria-checked') === 'true';
-  });
-  localStorage.setItem('codex-checklists', JSON.stringify(state));
-}
-
-function restoreChecklistState() {
-  const state = JSON.parse(localStorage.getItem('codex-checklists') || '{}');
-  document.querySelectorAll('.check-box').forEach((box, i) => {
-    if (state[i]) {
-      box.setAttribute('aria-checked', 'true');
-      box.classList.add('checked');
-      box.textContent = '✓';
-    }
-  });
-}
-
-function updateProgress(card) {
-  if (!card) return;
-  const total = card.querySelectorAll('.check-box').length;
-  const done = card.querySelectorAll('.check-box.checked').length;
-  const counter = card.querySelector('.progress-counter');
-  if (counter) {
-    counter.textContent = done + '/' + total;
-    counter.className = 'progress-counter' + (done === total ? ' progress-done' : done > 0 ? ' progress-partial' : '');
-  }
-}
-
-function updateAllProgress() {
-  document.querySelectorAll('.checklist-card').forEach(updateProgress);
-}
-
-// Stock input: calculate days of autonomy
-function updateStockCalc(input) {
-  const row = input.closest('tr');
-  if (!row) return;
-  const consumoEl = row.querySelector('.td-consumo');
-  const daysEl = row.querySelector('.td-days');
-  const badgeEl = row.querySelector('.badge-status');
-  if (!consumoEl || !daysEl) return;
-
-  const current = parseFloat(input.value) || 0;
-  const consumoNum = parseFloat(consumoEl.textContent.trim()) || 0;
-
-  let days = consumoNum > 0 ? Math.round((current / consumoNum) * 30) : null;
-  daysEl.textContent = days !== null ? days + 'd' : '—';
-
-  if (badgeEl && days !== null) {
-    badgeEl.className = 'badge badge-status';
-    if (days >= 45) { badgeEl.classList.add('badge-ok'); badgeEl.textContent = 'Verde'; }
-    else if (days >= 20) { badgeEl.classList.add('badge-warn'); badgeEl.textContent = 'Amarelo'; }
-    else { badgeEl.classList.add('badge-alert'); badgeEl.textContent = 'Vermelho'; }
-  }
-
-  saveStockValues();
-}
-
-function saveStockValues() {
-  const values = {};
-  document.querySelectorAll('.stock-input').forEach((input, i) => { values[i] = input.value; });
-  localStorage.setItem('codex-stock', JSON.stringify(values));
-}
-
-function restoreStockValues() {
-  const values = JSON.parse(localStorage.getItem('codex-stock') || '{}');
-  document.querySelectorAll('.stock-input').forEach((input, i) => {
-    if (values[i] !== undefined) { input.value = values[i]; updateStockCalc(input); }
-  });
-}
-
-// Keyboard support for checkboxes
-document.addEventListener('keydown', e => {
-  if ((e.key === 'Enter' || e.key === ' ') && e.target.classList.contains('check-box')) {
-    e.preventDefault();
-    toggleCheck(e.target);
-  }
-});
-
-// Generate shopping list modal
-function gerarLista() {
-  const items = [];
-  document.querySelectorAll('tr').forEach(row => {
-    const badge = row.querySelector('.badge-status');
-    const item = row.querySelector('.td-item');
-    if (badge && item && (badge.classList.contains('badge-alert') || badge.classList.contains('badge-warn'))) {
-      const status = badge.classList.contains('badge-alert') ? '🔴' : '🟡';
-      items.push(status + ' ' + item.textContent.trim().replace(/★\s*/, ''));
-    }
-  });
-
-  if (items.length === 0) {
-    alert('✅ Todos os estoques estão no nível ideal! Nenhum item para comprar.');
-    return;
-  }
-
-  const lista = 'LISTA DE COMPRAS — CODEX DE LOGÍSTICA FAMILIAR\nGerada em: ' +
-    new Date().toLocaleDateString('pt-BR') + '\n\n🔴 = Crítico (compra urgente)\n🟡 = Atenção (agendar compra)\n\n' +
-    items.join('\n');
-
-  const modal = document.getElementById('shopping-modal');
-  document.getElementById('shopping-list-text').textContent = lista;
-  modal.removeAttribute('hidden');
-  modal.focus();
-}
-
-function fecharModal() {
-  document.getElementById('shopping-modal').setAttribute('hidden', '');
-}
-
-function copiarLista() {
-  const text = document.getElementById('shopping-list-text').textContent;
-  navigator.clipboard.writeText(text).then(() => {
-    const btn = document.getElementById('copy-btn');
-    btn.textContent = '✓ Copiado!';
-    setTimeout(() => { btn.textContent = 'Copiar'; }, 2000);
-  });
-}
-</script>
+  <script src="./domain.js"></script>
+  <script src="./state.js"></script>
+  <script src="./app.js"></script>
 </body>
 </html>

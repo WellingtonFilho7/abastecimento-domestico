@@ -1,0 +1,9 @@
+{
+  "name": "abastecimento-domestico",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Manual operacional local-first para abastecimento doméstico rural.",
+  "scripts": {
+    "test": "node --test"
+  }
+}
