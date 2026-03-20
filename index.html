@@ -12,17 +12,6 @@
 <link rel="apple-touch-icon" href="./icons/icon-192.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<<<<<<< HEAD
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="./styles.css">
-</head>
-<body>
-  <header>
-    <div class="header-shell">
-      <div class="header-copy">
-        <div class="header-label">Local-first · offline</div>
-        <h1>Codex Doméstico</h1>
-=======
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -1133,7 +1122,6 @@
         <span class="brand-kicker">Manual operacional local-first</span>
         <h1>Codex de Resiliência Doméstica</h1>
         <p>Compras, estoque, protocolos e sistema da casa reunidos em uma interface mobile-first, clara e pronta para ação.</p>
->>>>>>> 88f0085 (feat: redesign app shell and harden local state)
       </div>
       <div class="brand-meta" id="header-meta"></div>
     </div>
@@ -1159,17 +1147,6 @@
   <main id="app-main"></main>
 
   <footer>
-<<<<<<< HEAD
-    Último registro <span id="state-last-updated">Nunca</span> · <span id="update-date"></span>
-  </footer>
-
-  <dialog id="shopping-modal" aria-labelledby="shopping-list-title">
-    <h3 id="shopping-list-title">Lista de compras</h3>
-    <pre id="shopping-list-text"></pre>
-    <div class="modal-actions">
-      <button type="button" data-action="copy-list">Copiar</button>
-      <button type="button" data-action="modal-close">Fechar</button>
-=======
     Documento operacional local-first · último registro <span id="state-last-updated">Nunca</span> · atualizado em <span id="update-date"></span>
   </footer>
 
@@ -1185,16 +1162,14 @@
         <button type="button" data-action="copy-list">Copiar</button>
         <button type="button" data-action="modal-close">Fechar</button>
       </div>
->>>>>>> 88f0085 (feat: redesign app shell and harden local state)
     </div>
-  </dialog>
+  </div>
 
   <input id="backup-import-input" type="file" accept=".json,application/json" hidden>
   <div id="app-toast" class="app-toast" hidden aria-live="polite"></div>
 
   <script src="./domain.js"></script>
   <script src="./state.js"></script>
-  <script src="./utils.js"></script>
   <script src="./app.js"></script>
 </body>
 </html>

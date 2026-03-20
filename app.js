@@ -13,7 +13,6 @@
     getItemsByCategory,
     groupShoppingList,
     summarizeCategory,
-    statusMeta,
   } = window.CodexDomain;
 
   const {
@@ -27,15 +26,6 @@
     updateStockValue,
   } = window.CodexState;
 
-<<<<<<< HEAD
-  const {
-    escapeHtml: esc,
-    debounce,
-    groupBy,
-    formatAuditTimestamp,
-    getChecklistProgress,
-  } = window.CodexUtils;
-=======
   const inventorySections = sections.filter(section => section.type === 'inventory');
   const categoryMap = Object.fromEntries(inventorySections.map(section => [section.id, section]));
   const uiSections = [
@@ -84,7 +74,6 @@
   };
 
   const cyclePriority = ['feira-semanal', 'contingencia-rural', 'atacado-mensal'];
->>>>>>> 88f0085 (feat: redesign app shell and harden local state)
 
   const state = {
     activeTab: window.location.hash.replace('#', '') || 'today',
@@ -107,8 +96,6 @@
   const searchInput = document.getElementById('global-search');
   const searchClear = document.getElementById('search-clear');
 
-  const debouncedPersist = debounce(persistState, 350);
-
   init();
 
   function init() {
@@ -120,7 +107,6 @@
     refreshChrome();
     renderNavigation();
     renderMain();
-    syncShoppingBadge();
     bindEvents();
   }
 
@@ -132,12 +118,6 @@
         return;
       }
 
-      const shopItem = event.target.closest('[data-shop-id]');
-      if (shopItem) {
-        toggleShoppingItem(shopItem.dataset.shopId);
-        return;
-      }
-
       const checklistBox = event.target.closest('.check-box');
       if (checklistBox) {
         toggleChecklist(checklistBox.dataset.checkId);
@@ -146,7 +126,7 @@
 
       const action = event.target.closest('[data-action]');
       if (!action) {
-        if (modal.open && event.target === modal) {
+        if (event.target === modal) {
           closeModal();
         }
         return;
@@ -168,9 +148,6 @@
         case 'import-backup':
           backupImportInput.click();
           break;
-        case 'clear-shopping':
-          clearShoppingChecks();
-          break;
         case 'reset-state':
           resetState();
           break;
@@ -189,13 +166,8 @@
       }
 
       state.persisted = updateStockValue(state.persisted, input.dataset.itemId, input.value, nowIso());
-<<<<<<< HEAD
-      debouncedPersist();
-      syncInventoryRow(input.dataset.itemId);
-=======
       persistState();
       syncInventoryItemViews(input.dataset.itemId);
->>>>>>> 88f0085 (feat: redesign app shell and harden local state)
     });
 
     document.addEventListener('keydown', event => {
@@ -203,8 +175,6 @@
         event.preventDefault();
         toggleChecklist(event.target.dataset.checkId);
       }
-<<<<<<< HEAD
-=======
 
       if (event.key === 'Escape' && !modal.hasAttribute('hidden')) {
         closeModal();
@@ -214,7 +184,6 @@
         event.preventDefault();
         searchInput.focus();
       }
->>>>>>> 88f0085 (feat: redesign app shell and harden local state)
     });
 
     searchInput.addEventListener('input', event => {
@@ -257,26 +226,6 @@
   }
 
   function renderNavigation() {
-<<<<<<< HEAD
-    navHost.innerHTML = sections.map(section => {
-      const active = section.id === state.activeTab;
-      const badge = renderTabBadge(section);
-      return `
-        <button
-          class="tab-btn${active ? ' active' : ''}"
-          type="button"
-          data-tab-target="${section.id}"
-          role="tab"
-          aria-selected="${active}"
-          aria-controls="section-${section.id}"
-        >
-          <span class="tab-icon">${section.icon}</span>
-          <span>${esc(section.label)}</span>
-          ${badge}
-        </button>
-      `;
-    }).join('');
-=======
     navHost.innerHTML = uiSections.map(section => renderNavButton(section, 'desktop')).join('');
     bottomNavHost.innerHTML = uiSections.map(section => renderNavButton(section, 'mobile')).join('');
   }
@@ -299,71 +248,9 @@
         <span class="nav-label">${section.label}</span>
       </button>
     `;
->>>>>>> 88f0085 (feat: redesign app shell and harden local state)
-  }
-
-  function renderTabBadge(section) {
-    if (section.type === 'overview' || section.type === 'protocols') {
-      return '';
-    }
-
-    if (section.type === 'shopping') {
-      const list = buildShoppingList(state.persisted.stock);
-      const unchecked = list.filter(item => !state.persisted.checklist['shop-' + item.id]).length;
-      if (unchecked > 0) {
-        return `<span class="tab-badge tab-badge-shopping">${unchecked}</span>`;
-      }
-      return '';
-    }
-
-    const summary = summarizeCategory(section.id, state.persisted.stock);
-    if (summary.alert > 0) {
-      return `<span class="tab-badge">${summary.alert}</span>`;
-    }
-
-    return '';
   }
 
   function renderMain() {
-<<<<<<< HEAD
-    mainHost.innerHTML = sections.map(section => {
-      const active = section.id === state.activeTab;
-      const body = renderSectionBody(section);
-
-      return `
-        <section
-          id="section-${section.id}"
-          class="section${active ? ' active' : ''}"
-          role="tabpanel"
-          aria-hidden="${active ? 'false' : 'true'}"
-        >
-          <div class="section-kicker">${esc(section.label)}</div>
-          <h2 class="section-title">${esc(section.title)}</h2>
-          <p class="section-sub">${esc(section.subtitle)}</p>
-          ${body}
-        </section>
-      `;
-    }).join('');
-
-    syncAllInventoryRows();
-    syncAllChecklists();
-  }
-
-  function renderSectionBody(section) {
-    if (section.type === 'overview') {
-      return renderOverview();
-    }
-
-    if (section.type === 'shopping') {
-      return `<div class="shopping-body">${renderShoppingTab()}</div>`;
-    }
-
-    if (section.type === 'protocols') {
-      return renderProtocols();
-    }
-
-    return renderInventorySection(section);
-=======
     const section = getUiSection(state.activeTab);
     if (!section) {
       state.activeTab = 'today';
@@ -377,7 +264,6 @@
       </section>
     `;
     syncStateMeta();
->>>>>>> 88f0085 (feat: redesign app shell and harden local state)
   }
 
   function renderPage(section) {
@@ -416,33 +302,6 @@
     });
 
     return `
-<<<<<<< HEAD
-      <div class="stat-row">
-        <div class="stat-card">
-          <span class="stat-label">Autonomia</span>
-          <strong>${esc(appProfile.autonomyWindow)}</strong>
-        </div>
-        <div class="stat-card">
-          <span class="stat-label">Compra</span>
-          <strong>${esc(appProfile.purchaseStrategy)}</strong>
-        </div>
-        <div class="stat-card">
-          <span class="stat-label">Orçamento</span>
-          <strong>${esc(appProfile.monthlyBudget)}</strong>
-        </div>
-        <div class="stat-card">
-          <span class="stat-label">Perfil</span>
-          <strong>${esc(appProfile.planningHouseholdSize)}</strong>
-        </div>
-      </div>
-
-      <div class="pill-row">
-        ${appProfile.restrictions.map(r => `<span class="pill">${esc(r)}</span>`).join('')}
-        <span class="pill">${esc(state.pwa.label)}</span>
-      </div>
-
-      ${renderLocalPanel()}
-=======
       <div class="page-heading">
         <span class="page-kicker">${section.label}</span>
         <h2 class="page-title">O que pede atenção agora</h2>
@@ -537,27 +396,11 @@
           <button type="button" class="action-btn-secondary" data-tab-target="system">Backup e sistema</button>
         </div>
       </section>
->>>>>>> 88f0085 (feat: redesign app shell and harden local state)
     `;
   }
 
   function renderSearchResults(results) {
     return `
-<<<<<<< HEAD
-      <div class="card">
-        <h3>Backup e dados</h3>
-        <div class="meta-row">
-          <span>v${esc(state.persisted.version)}</span>
-          <span>Último: ${esc(formatAuditTimestamp(state.persisted.meta.lastUpdatedAt))}</span>
-          <span>${esc(state.pwa.label)}</span>
-        </div>
-        <div class="control-actions">
-          <button type="button" class="btn-primary" data-action="export-backup">Exportar backup</button>
-          <button type="button" class="btn-secondary" data-action="import-backup">Importar</button>
-          <button type="button" class="btn-danger" data-action="reset-state">Resetar</button>
-        </div>
-      </div>
-=======
       <section class="panel">
         <div class="section-header">
           <div>
@@ -636,7 +479,6 @@
         <strong>${reorderCount || summary.ok}</strong>
         <p class="summary-card-sub">${copy}</p>
       </article>
->>>>>>> 88f0085 (feat: redesign app shell and harden local state)
     `;
   }
 
@@ -666,199 +508,6 @@
     });
 
     return `
-<<<<<<< HEAD
-      <div class="summary-row" data-category-summary="${section.id}">
-        ${renderCategorySummaryCards(section.id)}
-      </div>
-      ${Object.entries(groups).map(([group, groupItems]) => `
-        <div class="item-group">
-          <h3 class="group-title">${esc(group)}</h3>
-          <div class="item-list">
-            ${groupItems.map(renderInventoryCard).join('')}
-          </div>
-        </div>
-      `).join('')}
-    `;
-  }
-
-  function renderInventoryCard(item) {
-    const snapshot = computeStockSnapshot(item, state.persisted.stock[item.id] || 0);
-
-    return `
-      <div class="item-card" data-item-id="${item.id}">
-        <div class="item-name">
-          ${item.highlight ? '<span class="star">★</span>' : ''}${esc(item.label)}
-        </div>
-        <div class="item-body">
-          <label class="stock-entry">
-            <input
-              class="stock-input"
-              type="number"
-              min="0"
-              step="${getInputStep(item)}"
-              inputmode="decimal"
-              value="${esc(state.persisted.stock[item.id] || '')}"
-              data-item-id="${item.id}"
-              aria-label="Estoque atual de ${esc(item.label)}"
-            >
-            <span class="unit-chip">${esc(item.unit)}</span>
-          </label>
-          <div data-role="coverage" class="item-coverage">
-            <span class="coverage-value">${esc(snapshot.coverage)}</span>
-            ${snapshot.targetToBuyLabel ? `<span class="coverage-action">Comprar ${esc(snapshot.targetToBuyLabel)}</span>` : ''}
-          </div>
-          <span data-role="status" class="badge ${snapshot.statusClassName}">${esc(snapshot.statusLabel)}</span>
-        </div>
-      </div>
-    `;
-  }
-
-  function renderCategorySummaryCards(categoryId) {
-    const summary = summarizeCategory(categoryId, state.persisted.stock);
-
-    return `
-      <div class="summary-chip summary-chip-alert">
-        <strong>${summary.alert}</strong>
-        <span>Crítico</span>
-      </div>
-      <div class="summary-chip summary-chip-warn">
-        <strong>${summary.warn}</strong>
-        <span>Atenção</span>
-      </div>
-      <div class="summary-chip summary-chip-ok">
-        <strong>${summary.ok}</strong>
-        <span>Ok</span>
-      </div>
-    `;
-  }
-
-  function renderShoppingTab() {
-    const groups = groupShoppingList(state.persisted.stock);
-    const totalItems = groups.reduce((sum, g) => sum + g.items.length, 0);
-
-    if (totalItems === 0) {
-      return `
-        <div class="shopping-empty">
-          <div class="shopping-empty-icon">✓</div>
-          <p>Tudo verde. Nenhum item abaixo do estoque ideal.</p>
-        </div>
-      `;
-    }
-
-    const checkedCount = groups.reduce((sum, g) =>
-      sum + g.items.filter(item => state.persisted.checklist['shop-' + item.id]).length, 0);
-
-    return `
-      <div class="shopping-header">
-        <div class="shopping-progress">
-          <span class="shopping-progress-count">${checkedCount}/${totalItems}</span>
-          <span class="shopping-progress-label">${checkedCount === totalItems ? 'Tudo pego!' : 'itens no carrinho'}</span>
-        </div>
-        <button type="button" class="btn-secondary btn-sm" data-action="clear-shopping">Limpar checks</button>
-      </div>
-      <div class="shopping-progress-bar">
-        <div class="shopping-progress-fill" style="width: ${totalItems > 0 ? Math.round((checkedCount / totalItems) * 100) : 0}%"></div>
-      </div>
-      ${groups.map(group => `
-        <div class="shopping-group">
-          <h3 class="shopping-group-title">${esc(group.label)} <span class="shopping-group-count">${group.items.length}</span></h3>
-          <div class="shopping-items">
-            ${group.items.map(item => {
-              const checked = state.persisted.checklist['shop-' + item.id];
-              const marker = item.status === 'alert' ? 'alert' : 'warn';
-              return `
-                <button
-                  type="button"
-                  class="shopping-item${checked ? ' shopping-done' : ''}"
-                  data-shop-id="${item.id}"
-                  aria-pressed="${checked ? 'true' : 'false'}"
-                >
-                  <span class="shopping-check">${checked ? '✓' : ''}</span>
-                  <span class="shopping-item-info">
-                    <span class="shopping-item-name">${item.highlight ? '<span class="star">★</span>' : ''}${esc(item.label)}</span>
-                    <span class="shopping-item-qty badge-${marker}">Comprar ${esc(item.targetToBuyLabel)}</span>
-                  </span>
-                  <span class="shopping-item-current">${esc(formatQuantity(item.current, item.unit))} em casa</span>
-                </button>
-              `;
-            }).join('')}
-          </div>
-        </div>
-      `).join('')}
-    `;
-  }
-
-  function toggleShoppingItem(itemId) {
-    const checkId = 'shop-' + itemId;
-    state.persisted = toggleChecklistValue(state.persisted, checkId, nowIso());
-    debouncedPersist();
-    refreshShoppingTab();
-  }
-
-  function clearShoppingChecks() {
-    const keys = Object.keys(state.persisted.checklist).filter(k => k.startsWith('shop-'));
-    keys.forEach(key => {
-      if (state.persisted.checklist[key]) {
-        state.persisted = toggleChecklistValue(state.persisted, key, nowIso());
-      }
-    });
-    debouncedPersist();
-    refreshShoppingTab();
-  }
-
-  function refreshShoppingTab() {
-    const section = document.getElementById('section-shopping');
-    if (!section) {
-      return;
-    }
-
-    const shoppingSection = sections.find(s => s.id === 'shopping');
-    const body = renderShoppingTab();
-    const kicker = section.querySelector('.section-kicker');
-    const title = section.querySelector('.section-title');
-    const sub = section.querySelector('.section-sub');
-
-    // Re-render just the body (everything after sub)
-    const bodyContainer = section.querySelector('.shopping-body');
-    if (bodyContainer) {
-      bodyContainer.innerHTML = body;
-    } else {
-      // Wrap body content
-      let bodyEl = document.createElement('div');
-      bodyEl.className = 'shopping-body';
-      bodyEl.innerHTML = body;
-      // Remove old body content (everything after sub)
-      while (sub.nextSibling) {
-        sub.nextSibling.remove();
-      }
-      section.appendChild(bodyEl);
-    }
-    syncShoppingBadge();
-  }
-
-  function syncShoppingBadge() {
-    const btn = navHost.querySelector('[data-tab-target="shopping"]');
-    if (!btn) {
-      return;
-    }
-
-    const list = buildShoppingList(state.persisted.stock);
-    const unchecked = list.filter(item => !state.persisted.checklist['shop-' + item.id]).length;
-    const existing = btn.querySelector('.tab-badge');
-
-    if (unchecked > 0) {
-      if (existing) {
-        existing.textContent = unchecked;
-      } else {
-        const badge = document.createElement('span');
-        badge.className = 'tab-badge tab-badge-shopping';
-        badge.textContent = unchecked;
-        btn.appendChild(badge);
-      }
-    } else if (existing) {
-      existing.remove();
-    }
-=======
       <div class="page-heading">
         <span class="page-kicker">${section.label}</span>
         <h2 class="page-title">${section.title}</h2>
@@ -967,7 +616,6 @@
         <p class="summary-card-sub">${card.note}</p>
       </article>
     `).join('');
->>>>>>> 88f0085 (feat: redesign app shell and harden local state)
   }
 
   function renderInventoryGroup(group, groupItems) {
@@ -1109,10 +757,6 @@
         <div class="coverage-main">${snapshot.coverage}</div>
         <div class="coverage-sub">${snapshot.targetToBuyLabel ? `Comprar ${snapshot.targetToBuyLabel}` : 'Estoque ideal atendido'}</div>
       </div>
-<<<<<<< HEAD
-      <div class="checklist-grid">
-        ${protocolCards.map(renderChecklistCard).join('')}
-=======
     `;
   }
 
@@ -1256,34 +900,24 @@
         ` : `
           <div class="page-empty">Nenhum checklist corresponde à busca atual.</div>
         `}
->>>>>>> 88f0085 (feat: redesign app shell and harden local state)
       </div>
     `;
   }
 
   function renderChecklistCard(card) {
-<<<<<<< HEAD
-    const progress = getChecklistProgress(card, state.persisted.checklist);
-=======
     const progress = getChecklistProgress(card);
     const toneClass = progress.done === progress.total
       ? ' done'
       : progress.done > 0
         ? ' partial'
         : '';
->>>>>>> 88f0085 (feat: redesign app shell and harden local state)
 
     return `
       <article class="checklist-card" data-card-id="${card.id}">
         <div class="checklist-head">
           <div>
-<<<<<<< HEAD
-            <p class="eyebrow">Checklist</p>
-            <h3>${esc(card.title)}</h3>
-=======
             <span class="eyebrow">Checklist</span>
             <h3>${card.title}</h3>
->>>>>>> 88f0085 (feat: redesign app shell and harden local state)
           </div>
           <span class="progress-chip${toneClass}">${progress.done}/${progress.total}</span>
         </div>
@@ -1295,60 +929,17 @@
                 class="check-box${state.persisted.checklist[item.id] ? ' checked' : ''}"
                 data-check-id="${item.id}"
                 aria-pressed="${state.persisted.checklist[item.id] ? 'true' : 'false'}"
-                aria-labelledby="check-label-${item.id}"
               >
                 ${state.persisted.checklist[item.id] ? '✓' : ''}
               </button>
-<<<<<<< HEAD
-              <span class="check-text" id="check-label-${item.id}">${esc(item.text)}</span>
-            </div>
-=======
               <span class="check-text">${item.text}</span>
             </label>
->>>>>>> 88f0085 (feat: redesign app shell and harden local state)
           `).join('')}
         </div>
       </article>
     `;
   }
 
-<<<<<<< HEAD
-  function showTab(tabId) {
-    state.activeTab = tabId;
-    window.location.hash = tabId;
-    syncActiveTab();
-
-    if (tabId === 'shopping') {
-      refreshShoppingTab();
-    }
-  }
-
-  function syncActiveTab() {
-    mainHost.querySelectorAll('.section').forEach(section => {
-      const sectionId = section.id.replace('section-', '');
-      const isActive = sectionId === state.activeTab;
-      section.classList.toggle('active', isActive);
-      section.setAttribute('aria-hidden', isActive ? 'false' : 'true');
-    });
-
-    navHost.querySelectorAll('.tab-btn').forEach(btn => {
-      const isActive = btn.dataset.tabTarget === state.activeTab;
-      btn.classList.toggle('active', isActive);
-      btn.setAttribute('aria-selected', isActive);
-    });
-  }
-
-  function syncAllInventoryRows() {
-    document.querySelectorAll('[data-item-id]').forEach(card => {
-      syncInventoryRow(card.dataset.itemId);
-    });
-  }
-
-  function syncInventoryRow(itemId) {
-    const item = getItemById(itemId);
-    const card = document.querySelector(`[data-item-id="${itemId}"]`);
-    if (!item || !card) {
-=======
   function renderSystemPage(section) {
     return `
       <div class="page-heading">
@@ -1457,26 +1048,10 @@
   function syncInventoryItemViews(itemId) {
     const item = getItemById(itemId);
     if (!item) {
->>>>>>> 88f0085 (feat: redesign app shell and harden local state)
       return;
     }
 
     const snapshot = computeStockSnapshot(item, state.persisted.stock[itemId] || 0);
-<<<<<<< HEAD
-    const coverageEl = card.querySelector('[data-role="coverage"]');
-    const statusEl = card.querySelector('[data-role="status"]');
-
-    coverageEl.innerHTML = `
-      <span class="coverage-value">${esc(snapshot.coverage)}</span>
-      ${snapshot.targetToBuyLabel ? `<span class="coverage-action">Comprar ${esc(snapshot.targetToBuyLabel)}</span>` : ''}
-    `;
-
-    statusEl.className = `badge ${snapshot.statusClassName}`;
-    statusEl.textContent = snapshot.statusLabel;
-    syncCategorySummary(item.categoryId);
-    syncNavBadge(item.categoryId);
-    syncShoppingBadge();
-=======
 
     document.querySelectorAll(`[data-coverage-for="${itemId}"]`).forEach(host => {
       host.innerHTML = renderCoverageBlock(snapshot);
@@ -1494,31 +1069,7 @@
 
     syncCategorySummary(item.categoryId);
     syncInventoryOverview();
->>>>>>> 88f0085 (feat: redesign app shell and harden local state)
     syncStateMeta();
-  }
-
-  function syncNavBadge(categoryId) {
-    const btn = navHost.querySelector(`[data-tab-target="${categoryId}"]`);
-    if (!btn) {
-      return;
-    }
-
-    const existing = btn.querySelector('.tab-badge');
-    const summary = summarizeCategory(categoryId, state.persisted.stock);
-
-    if (summary.alert > 0) {
-      if (existing) {
-        existing.textContent = summary.alert;
-      } else {
-        const badge = document.createElement('span');
-        badge.className = 'tab-badge';
-        badge.textContent = summary.alert;
-        btn.appendChild(badge);
-      }
-    } else if (existing) {
-      existing.remove();
-    }
   }
 
   function syncCategorySummary(categoryId) {
@@ -1549,49 +1100,13 @@
       toBuy: 0,
     });
 
-<<<<<<< HEAD
-  function syncAllChecklists() {
-    protocolCards.forEach(card => syncChecklistCard(card.id));
-  }
-
-  function syncChecklistCard(cardId) {
-    const card = protocolCards.find(entry => entry.id === cardId);
-    const host = document.querySelector(`[data-card-id="${cardId}"]`);
-    if (!card || !host) {
-      return;
-    }
-
-    const progress = getChecklistProgress(card, state.persisted.checklist);
-    const counter = host.querySelector('.progress-counter');
-    counter.textContent = `${progress.done}/${progress.total}`;
-    counter.className = `progress-counter${progress.done === progress.total ? ' progress-done' : progress.done > 0 ? ' progress-partial' : ''}`;
-    syncStateMeta();
-=======
     host.innerHTML = renderInventoryOverviewCards(summary);
->>>>>>> 88f0085 (feat: redesign app shell and harden local state)
-  }
-
-  function syncChecklistItem(checkId) {
-    const btn = document.querySelector(`[data-check-id="${checkId}"]`);
-    if (!btn) {
-      return;
-    }
-
-    const isChecked = state.persisted.checklist[checkId];
-    btn.classList.toggle('checked', !!isChecked);
-    btn.setAttribute('aria-pressed', isChecked ? 'true' : 'false');
-    btn.textContent = isChecked ? '✓' : '';
-
-    const cardHost = btn.closest('[data-card-id]');
-    if (cardHost) {
-      syncChecklistCard(cardHost.dataset.cardId);
-    }
   }
 
   function toggleChecklist(checkId) {
     state.persisted = toggleChecklistValue(state.persisted, checkId, nowIso());
-    debouncedPersist();
-    syncChecklistItem(checkId);
+    persistState();
+    renderMain();
   }
 
   function openShoppingList() {
@@ -1617,21 +1132,13 @@
             return `${marker} ${item.label} · comprar ${item.targetToBuyLabel} · atual ${formatQuantity(item.current, item.unit)}`;
           }),
           '',
-<<<<<<< HEAD
-        ]),
-      ].join('\n');
-    }
-
-    modal.showModal();
-=======
         ];
       }),
     ].join('\n');
->>>>>>> 88f0085 (feat: redesign app shell and harden local state)
   }
 
   function closeModal() {
-    modal.close();
+    modal.setAttribute('hidden', '');
   }
 
   function copyList() {
@@ -1661,36 +1168,17 @@
     showToast('Backup exportado.', 'success');
   }
 
-  function silentBackup() {
-    try {
-      const payload = exportAppState(state.persisted, nowIso());
-      const filename = `codex-auto-backup-${new Date().toISOString().slice(0, 10)}.json`;
-      const blob = new Blob([payload], { type: 'application/json' });
-      const url = URL.createObjectURL(blob);
-      const anchor = document.createElement('a');
-
-      anchor.href = url;
-      anchor.download = filename;
-      anchor.click();
-      URL.revokeObjectURL(url);
-    } catch (_) {
-      // Falha silenciosa no backup automático.
-    }
-  }
-
   function handleBackupImport(event) {
     const [file] = event.target.files || [];
     if (!file) {
       return;
     }
 
-    silentBackup();
-
     file.text().then(content => {
       state.persisted = importAppState(content, nowIso());
       persistState();
       renderMain();
-      showToast('Backup importado. Um backup automático do estado anterior foi salvo.', 'success');
+      showToast('Backup importado.', 'success');
     }).catch(() => {
       showToast('Backup inválido.', 'error');
     }).finally(() => {
@@ -1704,16 +1192,10 @@
       return;
     }
 
-    silentBackup();
-
     resetStoredAppState(localStorage);
     state.persisted = createEmptyAppState(nowIso());
     persistState();
     renderMain();
-<<<<<<< HEAD
-    renderNavigation();
-    showToast('Estado resetado. Um backup automático do estado anterior foi salvo.', 'warn');
-=======
     showToast('Estado local resetado.', 'warn');
   }
 
@@ -1727,7 +1209,6 @@
     renderNavigation();
     renderMain();
     window.scrollTo({ top: 0, behavior: 'smooth' });
->>>>>>> 88f0085 (feat: redesign app shell and harden local state)
   }
 
   function persistState() {
@@ -1741,8 +1222,6 @@
     }
   }
 
-<<<<<<< HEAD
-=======
   function syncSearchUi() {
     const hasQuery = Boolean(state.searchQuery.trim());
     searchInput.value = state.searchQuery;
@@ -1925,7 +1404,6 @@
     return 'Atacado mensal';
   }
 
->>>>>>> 88f0085 (feat: redesign app shell and harden local state)
   function detectPwaStatus() {
     const standalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
 
