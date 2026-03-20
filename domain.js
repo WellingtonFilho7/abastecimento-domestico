@@ -8,10 +8,10 @@
   root.CodexDomain = exportsObject;
 })(typeof globalThis !== 'undefined' ? globalThis : window, function buildDomain() {
   const statusMeta = {
-    ok: { label: 'Verde', className: 'badge-ok', rank: 2 },
-    warn: { label: 'Amarelo', className: 'badge-warn', rank: 1 },
-    alert: { label: 'Vermelho', className: 'badge-alert', rank: 0 },
-    info: { label: 'Info', className: 'badge-info', rank: 3 },
+    ok: { label: 'Verde', icon: '✓', className: 'badge-ok', rank: 2 },
+    warn: { label: 'Amarelo', icon: '▲', className: 'badge-warn', rank: 1 },
+    alert: { label: 'Vermelho', icon: '●', className: 'badge-alert', rank: 0 },
+    info: { label: 'Info', icon: 'ℹ', className: 'badge-info', rank: 3 },
   };
 
   const purchaseCycleLabels = {
@@ -1168,7 +1168,7 @@
       coverage,
       targetToBuy,
       status,
-      statusLabel: meta.label,
+      statusLabel: `${meta.icon} ${meta.label}`,
       statusClassName: meta.className,
       statusRank: meta.rank,
       purchaseCycleLabel: purchaseCycleLabels[item.purchaseCycle] || item.purchaseCycle,

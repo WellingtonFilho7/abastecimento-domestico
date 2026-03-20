@@ -12,6 +12,7 @@
     getItemsByCategory,
     groupShoppingList,
     summarizeCategory,
+    statusMeta,
   } = window.CodexDomain;
 
   const {
@@ -24,6 +25,14 @@
     toggleChecklistValue,
     updateStockValue,
   } = window.CodexState;
+
+  const {
+    escapeHtml: esc,
+    debounce,
+    groupBy,
+    formatAuditTimestamp,
+    getChecklistProgress,
+  } = window.CodexUtils;
 
   const state = {
     activeTab: window.location.hash.replace('#', '') || 'overview',
@@ -41,6 +50,8 @@
   const shoppingListText = document.getElementById('shopping-list-text');
   const backupImportInput = document.getElementById('backup-import-input');
   const toast = document.getElementById('app-toast');
+
+  const debouncedPersist = debounce(persistState, 350);
 
   init();
 
@@ -72,7 +83,7 @@
 
       const action = event.target.closest('[data-action]');
       if (!action) {
-        if (event.target === modal) {
+        if (modal.open && event.target === modal) {
           closeModal();
         }
         return;
@@ -109,7 +120,7 @@
       }
 
       state.persisted = updateStockValue(state.persisted, input.dataset.itemId, input.value, nowIso());
-      persistState();
+      debouncedPersist();
       syncInventoryRow(input.dataset.itemId);
     });
 
@@ -117,10 +128,6 @@
       if ((event.key === 'Enter' || event.key === ' ') && event.target.classList.contains('check-box')) {
         event.preventDefault();
         toggleChecklist(event.target.dataset.checkId);
-      }
-
-      if (event.key === 'Escape' && !modal.hasAttribute('hidden')) {
-        closeModal();
       }
     });
 
@@ -143,6 +150,7 @@
   function renderNavigation() {
     navHost.innerHTML = sections.map(section => {
       const active = section.id === state.activeTab;
+      const badge = renderTabBadge(section);
       return `
         <button
           class="tab-btn${active ? ' active' : ''}"
@@ -153,10 +161,24 @@
           aria-controls="section-${section.id}"
         >
           <span class="tab-icon">${section.icon}</span>
-          <span>${section.label}</span>
+          <span>${esc(section.label)}</span>
+          ${badge}
         </button>
       `;
     }).join('');
+  }
+
+  function renderTabBadge(section) {
+    if (section.type === 'overview' || section.type === 'protocols') {
+      return '';
+    }
+
+    const summary = summarizeCategory(section.id, state.persisted.stock);
+    if (summary.alert > 0) {
+      return `<span class="tab-badge">${summary.alert}</span>`;
+    }
+
+    return '';
   }
 
   function renderMain() {
@@ -171,9 +193,9 @@
           role="tabpanel"
           aria-hidden="${active ? 'false' : 'true'}"
         >
-          <div class="section-kicker">${section.label}</div>
-          <h2 class="section-title">${section.title}</h2>
-          <p class="section-sub">${section.subtitle}</p>
+          <div class="section-kicker">${esc(section.label)}</div>
+          <h2 class="section-title">${esc(section.title)}</h2>
+          <p class="section-sub">${esc(section.subtitle)}</p>
           ${body}
         </section>
       `;
@@ -200,34 +222,34 @@
       <div class="hero-grid">
         <article class="hero-panel hero-panel-accent">
           <p class="eyebrow">Perfil estratégico</p>
-          <h3>${appProfile.title}</h3>
-          <p>${appProfile.assumptionNote}</p>
+          <h3>${esc(appProfile.title)}</h3>
+          <p>${esc(appProfile.assumptionNote)}</p>
           <div class="pill-row">
-            <span class="pill">Planejamento para ${appProfile.planningHouseholdSize}</span>
-            <span class="pill">${state.pwa.label}</span>
-            ${appProfile.restrictions.map(restriction => `<span class="pill">${restriction}</span>`).join('')}
+            <span class="pill">Planejamento para ${esc(appProfile.planningHouseholdSize)}</span>
+            <span class="pill">${esc(state.pwa.label)}</span>
+            ${appProfile.restrictions.map(restriction => `<span class="pill">${esc(restriction)}</span>`).join('')}
           </div>
         </article>
         <div class="stat-grid">
           <article class="stat-card">
             <span class="stat-label">Autonomia</span>
-            <strong>${appProfile.autonomyWindow}</strong>
+            <strong>${esc(appProfile.autonomyWindow)}</strong>
             <span class="stat-note">Meta operacional</span>
           </article>
           <article class="stat-card">
             <span class="stat-label">Compra</span>
             <strong>Híbrida</strong>
-            <span class="stat-note">${appProfile.purchaseStrategy}</span>
+            <span class="stat-note">${esc(appProfile.purchaseStrategy)}</span>
           </article>
           <article class="stat-card">
             <span class="stat-label">Orçamento</span>
-            <strong>${appProfile.monthlyBudget}</strong>
+            <strong>${esc(appProfile.monthlyBudget)}</strong>
             <span class="stat-note">Referência 2026</span>
           </article>
           <article class="stat-card">
             <span class="stat-label">Modo</span>
             <strong>Solo</strong>
-            <span class="stat-note">${appProfile.singleUserNote}</span>
+            <span class="stat-note">${esc(appProfile.singleUserNote)}</span>
           </article>
         </div>
       </div>
@@ -252,12 +274,12 @@
                 ${storageContainers.map(container => `
                   <tr>
                     <td>
-                      <div class="td-item">${container.label}</div>
-                      <div class="td-note">${container.note}</div>
+                      <div class="td-item">${esc(container.label)}</div>
+                      <div class="td-note">${esc(container.note)}</div>
                     </td>
-                    <td class="td-mono">${container.quantity}</td>
-                    <td class="td-mono">${container.totalVolume}</td>
-                    <td>${container.contents}</td>
+                    <td class="td-mono">${esc(container.quantity)}</td>
+                    <td class="td-mono">${esc(container.totalVolume)}</td>
+                    <td>${esc(container.contents)}</td>
                   </tr>
                 `).join('')}
               </tbody>
@@ -273,8 +295,8 @@
           <div class="phase-list">
             ${procurementPhases.map(phase => `
               <div class="phase-item">
-                <strong>${phase.title}</strong>
-                <p>${phase.body}</p>
+                <strong>${esc(phase.title)}</strong>
+                <p>${esc(phase.body)}</p>
               </div>
             `).join('')}
           </div>
@@ -298,28 +320,28 @@
         <div class="meta-grid">
           <div class="meta-item">
             <span class="meta-label">Storage</span>
-            <strong>v${state.persisted.version}</strong>
+            <strong>v${esc(state.persisted.version)}</strong>
             <span class="meta-note">Chave versionada</span>
           </div>
           <div class="meta-item">
             <span class="meta-label">Último registro</span>
-            <strong>${formatAuditTimestamp(state.persisted.meta.lastUpdatedAt)}</strong>
+            <strong>${esc(formatAuditTimestamp(state.persisted.meta.lastUpdatedAt))}</strong>
             <span class="meta-note">Dado vivo</span>
           </div>
           <div class="meta-item">
             <span class="meta-label">Estoque</span>
-            <strong>${formatAuditTimestamp(state.persisted.meta.stockUpdatedAt)}</strong>
+            <strong>${esc(formatAuditTimestamp(state.persisted.meta.stockUpdatedAt))}</strong>
             <span class="meta-note">Última edição</span>
           </div>
           <div class="meta-item">
             <span class="meta-label">Checklist</span>
-            <strong>${formatAuditTimestamp(state.persisted.meta.checklistUpdatedAt)}</strong>
+            <strong>${esc(formatAuditTimestamp(state.persisted.meta.checklistUpdatedAt))}</strong>
             <span class="meta-note">Último toggle</span>
           </div>
           <div class="meta-item">
             <span class="meta-label">Modo PWA</span>
-            <strong>${state.pwa.label}</strong>
-            <span class="meta-note">${state.pwa.note}</span>
+            <strong>${esc(state.pwa.label)}</strong>
+            <span class="meta-note">${esc(state.pwa.note)}</span>
           </div>
         </div>
         <div class="control-actions">
@@ -342,14 +364,14 @@
         <div class="governance-list">
           ${appProfile.governanceCards.map(card => `
             <div class="governance-item">
-              <span class="governance-label">${card.label}</span>
-              <p>${card.body}</p>
+              <span class="governance-label">${esc(card.label)}</span>
+              <p>${esc(card.body)}</p>
             </div>
           `).join('')}
         </div>
         <div class="editorial-note">
           <strong>Nota editorial</strong>
-          <p>${appProfile.editorialCaveat}</p>
+          <p>${esc(appProfile.editorialCaveat)}</p>
         </div>
       </article>
     `;
@@ -361,8 +383,8 @@
 
     return `
       <div class="alert-box">
-        <strong>${section.alertTitle}</strong>
-        <p>${section.alertBody}</p>
+        <strong>${esc(section.alertTitle)}</strong>
+        <p>${esc(section.alertBody)}</p>
       </div>
       <div class="summary-grid" data-category-summary="${section.id}">
         ${renderCategorySummaryCards(section.id)}
@@ -370,8 +392,8 @@
       ${Object.entries(groups).map(([group, groupItems]) => `
         <article class="card inventory-card">
           <div class="card-heading">
-            <p class="eyebrow">${section.label}</p>
-            <h3>${group}</h3>
+            <p class="eyebrow">${esc(section.label)}</p>
+            <h3>${esc(group)}</h3>
           </div>
           <div class="table-wrap">
             <table class="inventory-table">
@@ -405,18 +427,18 @@
     return `
       <tr data-item-id="${item.id}">
         <td data-label="Item">
-          <div class="td-item">${item.highlight ? '<span class="star">★</span>' : ''}${item.label}</div>
-          <div class="td-note">${item.note}</div>
+          <div class="td-item">${item.highlight ? '<span class="star">★</span>' : ''}${esc(item.label)}</div>
+          <div class="td-note">${esc(item.note)}</div>
           <div class="tag-row">
-            ${item.tags.map(tag => `<span class="mini-tag">${tag}</span>`).join('')}
+            ${item.tags.map(tag => `<span class="mini-tag">${esc(tag)}</span>`).join('')}
           </div>
         </td>
         <td data-label="Consumo / ciclo">
-          <div class="td-mono">${monthly}</div>
-          <div class="td-note">${snapshot.purchaseCycleLabel}</div>
+          <div class="td-mono">${esc(monthly)}</div>
+          <div class="td-note">${esc(snapshot.purchaseCycleLabel)}</div>
         </td>
-        <td class="td-mono" data-label="Meta">${snapshot.stockTargetLabel}</td>
-        <td class="td-mono" data-label="Vida útil">${item.shelfLife}</td>
+        <td class="td-mono" data-label="Meta">${esc(snapshot.stockTargetLabel)}</td>
+        <td class="td-mono" data-label="Vida útil">${esc(item.shelfLife)}</td>
         <td data-label="Atual">
           <label class="stock-entry">
             <input
@@ -425,19 +447,19 @@
               min="0"
               step="${getInputStep(item)}"
               inputmode="decimal"
-              value="${state.persisted.stock[item.id] || ''}"
+              value="${esc(state.persisted.stock[item.id] || '')}"
               data-item-id="${item.id}"
-              aria-label="Estoque atual de ${item.label}"
+              aria-label="Estoque atual de ${esc(item.label)}"
             >
-            <span class="unit-chip">${item.unit}</span>
+            <span class="unit-chip">${esc(item.unit)}</span>
           </label>
         </td>
         <td data-role="coverage" data-label="Cobertura">
-          <div class="td-mono">${snapshot.coverage}</div>
-          <div class="td-note">${snapshot.targetToBuyLabel ? `Comprar ${snapshot.targetToBuyLabel}` : 'Estoque ideal atendido'}</div>
+          <div class="td-mono">${esc(snapshot.coverage)}</div>
+          <div class="td-note">${snapshot.targetToBuyLabel ? `Comprar ${esc(snapshot.targetToBuyLabel)}` : 'Estoque ideal atendido'}</div>
         </td>
         <td data-role="status" data-label="Status">
-          <span class="badge ${snapshot.statusClassName}">${snapshot.statusLabel}</span>
+          <span class="badge ${snapshot.statusClassName}">${esc(snapshot.statusLabel)}</span>
         </td>
       </tr>
     `;
@@ -468,9 +490,9 @@
       },
     ].map(card => `
       <article class="summary-card summary-card-${card.tone}">
-        <span class="summary-label">${card.label}</span>
+        <span class="summary-label">${esc(card.label)}</span>
         <strong>${card.value}</strong>
-        <span class="summary-note">${card.note}</span>
+        <span class="summary-note">${esc(card.note)}</span>
       </article>
     `).join('');
   }
@@ -510,14 +532,14 @@
   }
 
   function renderChecklistCard(card) {
-    const progress = getChecklistProgress(card);
+    const progress = getChecklistProgress(card, state.persisted.checklist);
 
     return `
       <article class="card checklist-card" data-card-id="${card.id}">
         <div class="card-heading card-heading-inline">
           <div>
             <p class="eyebrow">Checklist</p>
-            <h3>${card.title}</h3>
+            <h3>${esc(card.title)}</h3>
           </div>
           <span class="progress-counter${progress.done === progress.total ? ' progress-done' : progress.done > 0 ? ' progress-partial' : ''}">
             ${progress.done}/${progress.total}
@@ -531,10 +553,11 @@
                 class="check-box${state.persisted.checklist[item.id] ? ' checked' : ''}"
                 data-check-id="${item.id}"
                 aria-pressed="${state.persisted.checklist[item.id] ? 'true' : 'false'}"
+                aria-labelledby="check-label-${item.id}"
               >
                 ${state.persisted.checklist[item.id] ? '✓' : ''}
               </button>
-              <span class="check-text">${item.text}</span>
+              <span class="check-text" id="check-label-${item.id}">${esc(item.text)}</span>
             </div>
           `).join('')}
         </div>
@@ -545,8 +568,22 @@
   function showTab(tabId) {
     state.activeTab = tabId;
     window.location.hash = tabId;
-    renderNavigation();
-    renderMain();
+    syncActiveTab();
+  }
+
+  function syncActiveTab() {
+    mainHost.querySelectorAll('.section').forEach(section => {
+      const sectionId = section.id.replace('section-', '');
+      const isActive = sectionId === state.activeTab;
+      section.classList.toggle('active', isActive);
+      section.setAttribute('aria-hidden', isActive ? 'false' : 'true');
+    });
+
+    navHost.querySelectorAll('.tab-btn').forEach(btn => {
+      const isActive = btn.dataset.tabTarget === state.activeTab;
+      btn.classList.toggle('active', isActive);
+      btn.setAttribute('aria-selected', isActive);
+    });
   }
 
   function syncAllInventoryRows() {
@@ -567,13 +604,37 @@
     const statusCell = row.querySelector('[data-role="status"]');
 
     coverageCell.innerHTML = `
-      <div class="td-mono">${snapshot.coverage}</div>
-      <div class="td-note">${snapshot.targetToBuyLabel ? `Comprar ${snapshot.targetToBuyLabel}` : 'Estoque ideal atendido'}</div>
+      <div class="td-mono">${esc(snapshot.coverage)}</div>
+      <div class="td-note">${snapshot.targetToBuyLabel ? `Comprar ${esc(snapshot.targetToBuyLabel)}` : 'Estoque ideal atendido'}</div>
     `;
 
-    statusCell.innerHTML = `<span class="badge ${snapshot.statusClassName}">${snapshot.statusLabel}</span>`;
+    statusCell.innerHTML = `<span class="badge ${snapshot.statusClassName}">${esc(snapshot.statusLabel)}</span>`;
     syncCategorySummary(item.categoryId);
+    syncNavBadge(item.categoryId);
     syncStateMeta();
+  }
+
+  function syncNavBadge(categoryId) {
+    const btn = navHost.querySelector(`[data-tab-target="${categoryId}"]`);
+    if (!btn) {
+      return;
+    }
+
+    const existing = btn.querySelector('.tab-badge');
+    const summary = summarizeCategory(categoryId, state.persisted.stock);
+
+    if (summary.alert > 0) {
+      if (existing) {
+        existing.textContent = summary.alert;
+      } else {
+        const badge = document.createElement('span');
+        badge.className = 'tab-badge';
+        badge.textContent = summary.alert;
+        btn.appendChild(badge);
+      }
+    } else if (existing) {
+      existing.remove();
+    }
   }
 
   function syncCategorySummary(categoryId) {
@@ -596,17 +657,34 @@
       return;
     }
 
-    const progress = getChecklistProgress(card);
+    const progress = getChecklistProgress(card, state.persisted.checklist);
     const counter = host.querySelector('.progress-counter');
     counter.textContent = `${progress.done}/${progress.total}`;
     counter.className = `progress-counter${progress.done === progress.total ? ' progress-done' : progress.done > 0 ? ' progress-partial' : ''}`;
     syncStateMeta();
   }
 
+  function syncChecklistItem(checkId) {
+    const btn = document.querySelector(`[data-check-id="${checkId}"]`);
+    if (!btn) {
+      return;
+    }
+
+    const isChecked = state.persisted.checklist[checkId];
+    btn.classList.toggle('checked', !!isChecked);
+    btn.setAttribute('aria-pressed', isChecked ? 'true' : 'false');
+    btn.textContent = isChecked ? '✓' : '';
+
+    const cardHost = btn.closest('[data-card-id]');
+    if (cardHost) {
+      syncChecklistCard(cardHost.dataset.cardId);
+    }
+  }
+
   function toggleChecklist(checkId) {
     state.persisted = toggleChecklistValue(state.persisted, checkId, nowIso());
-    persistState();
-    renderMain();
+    debouncedPersist();
+    syncChecklistItem(checkId);
   }
 
   function openShoppingList() {
@@ -630,11 +708,11 @@
       ].join('\n');
     }
 
-    modal.removeAttribute('hidden');
+    modal.showModal();
   }
 
   function closeModal() {
-    modal.setAttribute('hidden', '');
+    modal.close();
   }
 
   function copyList() {
@@ -664,17 +742,36 @@
     showToast('Backup exportado.', 'success');
   }
 
+  function silentBackup() {
+    try {
+      const payload = exportAppState(state.persisted, nowIso());
+      const filename = `codex-auto-backup-${new Date().toISOString().slice(0, 10)}.json`;
+      const blob = new Blob([payload], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const anchor = document.createElement('a');
+
+      anchor.href = url;
+      anchor.download = filename;
+      anchor.click();
+      URL.revokeObjectURL(url);
+    } catch (_) {
+      // Falha silenciosa no backup automático.
+    }
+  }
+
   function handleBackupImport(event) {
     const [file] = event.target.files || [];
     if (!file) {
       return;
     }
 
+    silentBackup();
+
     file.text().then(content => {
       state.persisted = importAppState(content, nowIso());
       persistState();
       renderMain();
-      showToast('Backup importado.', 'success');
+      showToast('Backup importado. Um backup automático do estado anterior foi salvo.', 'success');
     }).catch(() => {
       showToast('Backup inválido.', 'error');
     }).finally(() => {
@@ -688,25 +785,14 @@
       return;
     }
 
+    silentBackup();
+
     resetStoredAppState(localStorage);
     state.persisted = createEmptyAppState(nowIso());
     persistState();
     renderMain();
-    showToast('Estado local resetado.', 'warn');
-  }
-
-  function getChecklistProgress(card) {
-    const done = card.items.filter(item => state.persisted.checklist[item.id]).length;
-    return { done, total: card.items.length };
-  }
-
-  function groupBy(items, key) {
-    return items.reduce((groups, item) => {
-      const groupKey = item[key];
-      groups[groupKey] = groups[groupKey] || [];
-      groups[groupKey].push(item);
-      return groups;
-    }, {});
+    renderNavigation();
+    showToast('Estado resetado. Um backup automático do estado anterior foi salvo.', 'warn');
   }
 
   function persistState() {
@@ -718,22 +804,6 @@
     if (stateLastUpdated) {
       stateLastUpdated.textContent = formatAuditTimestamp(state.persisted.meta.lastUpdatedAt);
     }
-  }
-
-  function formatAuditTimestamp(value) {
-    if (!value) {
-      return 'Nunca';
-    }
-
-    const date = new Date(value);
-    if (Number.isNaN(date.getTime())) {
-      return 'Nunca';
-    }
-
-    return date.toLocaleString('pt-BR', {
-      dateStyle: 'short',
-      timeStyle: 'short',
-    });
   }
 
   function detectPwaStatus() {
