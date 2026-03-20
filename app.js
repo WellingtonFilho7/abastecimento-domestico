@@ -219,161 +219,49 @@
 
   function renderOverview() {
     return `
-      <div class="hero-grid">
-        <article class="hero-panel hero-panel-accent">
-          <p class="eyebrow">Perfil estratégico</p>
-          <h3>${esc(appProfile.title)}</h3>
-          <p>${esc(appProfile.assumptionNote)}</p>
-          <div class="pill-row">
-            <span class="pill">Planejamento para ${esc(appProfile.planningHouseholdSize)}</span>
-            <span class="pill">${esc(state.pwa.label)}</span>
-            ${appProfile.restrictions.map(restriction => `<span class="pill">${esc(restriction)}</span>`).join('')}
-          </div>
-        </article>
-        <div class="stat-grid">
-          <article class="stat-card">
-            <span class="stat-label">Autonomia</span>
-            <strong>${esc(appProfile.autonomyWindow)}</strong>
-            <span class="stat-note">Meta operacional</span>
-          </article>
-          <article class="stat-card">
-            <span class="stat-label">Compra</span>
-            <strong>Híbrida</strong>
-            <span class="stat-note">${esc(appProfile.purchaseStrategy)}</span>
-          </article>
-          <article class="stat-card">
-            <span class="stat-label">Orçamento</span>
-            <strong>${esc(appProfile.monthlyBudget)}</strong>
-            <span class="stat-note">Referência 2026</span>
-          </article>
-          <article class="stat-card">
-            <span class="stat-label">Modo</span>
-            <strong>Solo</strong>
-            <span class="stat-note">${esc(appProfile.singleUserNote)}</span>
-          </article>
+      <div class="stat-row">
+        <div class="stat-card">
+          <span class="stat-label">Autonomia</span>
+          <strong>${esc(appProfile.autonomyWindow)}</strong>
+        </div>
+        <div class="stat-card">
+          <span class="stat-label">Compra</span>
+          <strong>${esc(appProfile.purchaseStrategy)}</strong>
+        </div>
+        <div class="stat-card">
+          <span class="stat-label">Orçamento</span>
+          <strong>${esc(appProfile.monthlyBudget)}</strong>
+        </div>
+        <div class="stat-card">
+          <span class="stat-label">Perfil</span>
+          <strong>${esc(appProfile.planningHouseholdSize)}</strong>
         </div>
       </div>
 
-      <div class="grid-2">
-        <article class="card">
-          <div class="card-heading">
-            <p class="eyebrow">Bunker hermético</p>
-            <h3>Infraestrutura de armazenagem</h3>
-          </div>
-          <div class="table-wrap">
-            <table>
-              <thead>
-                <tr>
-                  <th>Pote</th>
-                  <th>Qtd</th>
-                  <th>Volume</th>
-                  <th>Conteúdo</th>
-                </tr>
-              </thead>
-              <tbody>
-                ${storageContainers.map(container => `
-                  <tr>
-                    <td>
-                      <div class="td-item">${esc(container.label)}</div>
-                      <div class="td-note">${esc(container.note)}</div>
-                    </td>
-                    <td class="td-mono">${esc(container.quantity)}</td>
-                    <td class="td-mono">${esc(container.totalVolume)}</td>
-                    <td>${esc(container.contents)}</td>
-                  </tr>
-                `).join('')}
-              </tbody>
-            </table>
-          </div>
-        </article>
-
-        <article class="card">
-          <div class="card-heading">
-            <p class="eyebrow">Atacadão / Assaí</p>
-            <h3>Roteiro operacional de compra</h3>
-          </div>
-          <div class="phase-list">
-            ${procurementPhases.map(phase => `
-              <div class="phase-item">
-                <strong>${esc(phase.title)}</strong>
-                <p>${esc(phase.body)}</p>
-              </div>
-            `).join('')}
-          </div>
-        </article>
+      <div class="pill-row">
+        ${appProfile.restrictions.map(r => `<span class="pill">${esc(r)}</span>`).join('')}
+        <span class="pill">${esc(state.pwa.label)}</span>
       </div>
 
-      <div class="grid-2">
-        ${renderLocalPanel()}
-        ${renderGovernancePanel()}
-      </div>
+      ${renderLocalPanel()}
     `;
   }
 
   function renderLocalPanel() {
     return `
-      <article class="card">
-        <div class="card-heading">
-          <p class="eyebrow">Painel local</p>
-          <h3>Backup, reset e auditoria</h3>
-        </div>
-        <div class="meta-grid">
-          <div class="meta-item">
-            <span class="meta-label">Storage</span>
-            <strong>v${esc(state.persisted.version)}</strong>
-            <span class="meta-note">Chave versionada</span>
-          </div>
-          <div class="meta-item">
-            <span class="meta-label">Último registro</span>
-            <strong>${esc(formatAuditTimestamp(state.persisted.meta.lastUpdatedAt))}</strong>
-            <span class="meta-note">Dado vivo</span>
-          </div>
-          <div class="meta-item">
-            <span class="meta-label">Estoque</span>
-            <strong>${esc(formatAuditTimestamp(state.persisted.meta.stockUpdatedAt))}</strong>
-            <span class="meta-note">Última edição</span>
-          </div>
-          <div class="meta-item">
-            <span class="meta-label">Checklist</span>
-            <strong>${esc(formatAuditTimestamp(state.persisted.meta.checklistUpdatedAt))}</strong>
-            <span class="meta-note">Último toggle</span>
-          </div>
-          <div class="meta-item">
-            <span class="meta-label">Modo PWA</span>
-            <strong>${esc(state.pwa.label)}</strong>
-            <span class="meta-note">${esc(state.pwa.note)}</span>
-          </div>
+      <div class="card">
+        <h3>Backup e dados</h3>
+        <div class="meta-row">
+          <span>v${esc(state.persisted.version)}</span>
+          <span>Último: ${esc(formatAuditTimestamp(state.persisted.meta.lastUpdatedAt))}</span>
+          <span>${esc(state.pwa.label)}</span>
         </div>
         <div class="control-actions">
-          <button type="button" class="btn-shopping" data-action="export-backup">Exportar backup</button>
-          <button type="button" class="btn-secondary" data-action="import-backup">Importar backup</button>
-          <button type="button" class="btn-danger" data-action="reset-state">Resetar estado</button>
+          <button type="button" class="btn-primary" data-action="export-backup">Exportar backup</button>
+          <button type="button" class="btn-secondary" data-action="import-backup">Importar</button>
+          <button type="button" class="btn-danger" data-action="reset-state">Resetar</button>
         </div>
-        <p class="support-copy">O estado fica só neste navegador. Para uso individual confiável, o backup JSON é a redundância manual mais importante.</p>
-      </article>
-    `;
-  }
-
-  function renderGovernancePanel() {
-    return `
-      <article class="card">
-        <div class="card-heading">
-          <p class="eyebrow">Leitura do sistema</p>
-          <h3>Dado, protocolo e hipótese</h3>
-        </div>
-        <div class="governance-list">
-          ${appProfile.governanceCards.map(card => `
-            <div class="governance-item">
-              <span class="governance-label">${esc(card.label)}</span>
-              <p>${esc(card.body)}</p>
-            </div>
-          `).join('')}
-        </div>
-        <div class="editorial-note">
-          <strong>Nota editorial</strong>
-          <p>${esc(appProfile.editorialCaveat)}</p>
-        </div>
-      </article>
+      </div>
     `;
   }
 
@@ -382,64 +270,29 @@
     const groups = groupBy(items, 'group');
 
     return `
-      <div class="alert-box">
-        <strong>${esc(section.alertTitle)}</strong>
-        <p>${esc(section.alertBody)}</p>
-      </div>
-      <div class="summary-grid" data-category-summary="${section.id}">
+      <div class="summary-row" data-category-summary="${section.id}">
         ${renderCategorySummaryCards(section.id)}
       </div>
       ${Object.entries(groups).map(([group, groupItems]) => `
-        <article class="card inventory-card">
-          <div class="card-heading">
-            <p class="eyebrow">${esc(section.label)}</p>
-            <h3>${esc(group)}</h3>
+        <div class="item-group">
+          <h3 class="group-title">${esc(group)}</h3>
+          <div class="item-list">
+            ${groupItems.map(renderInventoryCard).join('')}
           </div>
-          <div class="table-wrap">
-            <table class="inventory-table">
-              <thead>
-                <tr>
-                  <th>Item</th>
-                  <th>Consumo / ciclo</th>
-                  <th>Meta</th>
-                  <th>Vida útil</th>
-                  <th>Atual</th>
-                  <th>Cobertura</th>
-                  <th>Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                ${groupItems.map(renderInventoryRow).join('')}
-              </tbody>
-            </table>
-          </div>
-        </article>
+        </div>
       `).join('')}
     `;
   }
 
-  function renderInventoryRow(item) {
+  function renderInventoryCard(item) {
     const snapshot = computeStockSnapshot(item, state.persisted.stock[item.id] || 0);
-    const monthly = item.stockMode === 'recurring'
-      ? formatQuantity(item.monthlyUsage, item.unit)
-      : 'Reserva de segurança';
 
     return `
-      <tr data-item-id="${item.id}">
-        <td data-label="Item">
-          <div class="td-item">${item.highlight ? '<span class="star">★</span>' : ''}${esc(item.label)}</div>
-          <div class="td-note">${esc(item.note)}</div>
-          <div class="tag-row">
-            ${item.tags.map(tag => `<span class="mini-tag">${esc(tag)}</span>`).join('')}
-          </div>
-        </td>
-        <td data-label="Consumo / ciclo">
-          <div class="td-mono">${esc(monthly)}</div>
-          <div class="td-note">${esc(snapshot.purchaseCycleLabel)}</div>
-        </td>
-        <td class="td-mono" data-label="Meta">${esc(snapshot.stockTargetLabel)}</td>
-        <td class="td-mono" data-label="Vida útil">${esc(item.shelfLife)}</td>
-        <td data-label="Atual">
+      <div class="item-card" data-item-id="${item.id}">
+        <div class="item-name">
+          ${item.highlight ? '<span class="star">★</span>' : ''}${esc(item.label)}
+        </div>
+        <div class="item-body">
           <label class="stock-entry">
             <input
               class="stock-input"
@@ -453,48 +306,33 @@
             >
             <span class="unit-chip">${esc(item.unit)}</span>
           </label>
-        </td>
-        <td data-role="coverage" data-label="Cobertura">
-          <div class="td-mono">${esc(snapshot.coverage)}</div>
-          <div class="td-note">${snapshot.targetToBuyLabel ? `Comprar ${esc(snapshot.targetToBuyLabel)}` : 'Estoque ideal atendido'}</div>
-        </td>
-        <td data-role="status" data-label="Status">
-          <span class="badge ${snapshot.statusClassName}">${esc(snapshot.statusLabel)}</span>
-        </td>
-      </tr>
+          <div data-role="coverage" class="item-coverage">
+            <span class="coverage-value">${esc(snapshot.coverage)}</span>
+            ${snapshot.targetToBuyLabel ? `<span class="coverage-action">Comprar ${esc(snapshot.targetToBuyLabel)}</span>` : ''}
+          </div>
+          <span data-role="status" class="badge ${snapshot.statusClassName}">${esc(snapshot.statusLabel)}</span>
+        </div>
+      </div>
     `;
   }
 
   function renderCategorySummaryCards(categoryId) {
     const summary = summarizeCategory(categoryId, state.persisted.stock);
-    const reorderCount = summary.warn + summary.alert;
 
-    return [
-      {
-        label: 'Crítico',
-        value: summary.alert,
-        note: 'Abaixo do mínimo',
-        tone: 'alert',
-      },
-      {
-        label: 'Atenção',
-        value: summary.warn,
-        note: 'Fora do ideal',
-        tone: 'warn',
-      },
-      {
-        label: 'Recompor',
-        value: reorderCount,
-        note: `${summary.ok}/${summary.total} já estão verdes`,
-        tone: 'balance',
-      },
-    ].map(card => `
-      <article class="summary-card summary-card-${card.tone}">
-        <span class="summary-label">${esc(card.label)}</span>
-        <strong>${card.value}</strong>
-        <span class="summary-note">${esc(card.note)}</span>
-      </article>
-    `).join('');
+    return `
+      <div class="summary-chip summary-chip-alert">
+        <strong>${summary.alert}</strong>
+        <span>Crítico</span>
+      </div>
+      <div class="summary-chip summary-chip-warn">
+        <strong>${summary.warn}</strong>
+        <span>Atenção</span>
+      </div>
+      <div class="summary-chip summary-chip-ok">
+        <strong>${summary.ok}</strong>
+        <span>Ok</span>
+      </div>
+    `;
   }
 
   function renderProtocols() {
@@ -502,29 +340,6 @@
       <div class="action-row">
         <button type="button" class="btn-shopping" data-action="shopping-list">Gerar lista de compras</button>
       </div>
-      <div class="grid-2">
-        <article class="protocol-box">
-          <p class="eyebrow">PEPS</p>
-          <h3>Manutenção do sistema</h3>
-          <ul>
-            <li>Reabastecer o bunker do arroz quando ele entrar no terço final.</li>
-            <li>Limpar potes antes do novo lote com pano e álcool 70%.</li>
-            <li>Separar compra mensal da feira semanal para não misturar ciclos.</li>
-            <li>Usar caixas de papelão para proteger o frio no trajeto até Gurinhém.</li>
-          </ul>
-        </article>
-        <article class="protocol-box protocol-box-alt">
-          <p class="eyebrow">Feira semanal</p>
-          <h3>Rotina mínima de frescos</h3>
-          <ul>
-            <li>Frutas: kiwi, ameixa, maçã, pêra, pinha e uva conforme preço e qualidade.</li>
-            <li>Legumes: cenoura, batata, cebola e tomate entram na lista base.</li>
-            <li>Temperos verdes: coentro, cebolinha e hortelã com reposição curta.</li>
-            <li>Folhosas devem ser as primeiras a aparecer na lista da semana.</li>
-          </ul>
-        </article>
-      </div>
-
       <div class="checklist-grid">
         ${protocolCards.map(renderChecklistCard).join('')}
       </div>
@@ -587,28 +402,29 @@
   }
 
   function syncAllInventoryRows() {
-    document.querySelectorAll('tr[data-item-id]').forEach(row => {
-      syncInventoryRow(row.dataset.itemId);
+    document.querySelectorAll('[data-item-id]').forEach(card => {
+      syncInventoryRow(card.dataset.itemId);
     });
   }
 
   function syncInventoryRow(itemId) {
     const item = getItemById(itemId);
-    const row = document.querySelector(`[data-item-id="${itemId}"]`);
-    if (!item || !row) {
+    const card = document.querySelector(`[data-item-id="${itemId}"]`);
+    if (!item || !card) {
       return;
     }
 
     const snapshot = computeStockSnapshot(item, state.persisted.stock[itemId] || 0);
-    const coverageCell = row.querySelector('[data-role="coverage"]');
-    const statusCell = row.querySelector('[data-role="status"]');
+    const coverageEl = card.querySelector('[data-role="coverage"]');
+    const statusEl = card.querySelector('[data-role="status"]');
 
-    coverageCell.innerHTML = `
-      <div class="td-mono">${esc(snapshot.coverage)}</div>
-      <div class="td-note">${snapshot.targetToBuyLabel ? `Comprar ${esc(snapshot.targetToBuyLabel)}` : 'Estoque ideal atendido'}</div>
+    coverageEl.innerHTML = `
+      <span class="coverage-value">${esc(snapshot.coverage)}</span>
+      ${snapshot.targetToBuyLabel ? `<span class="coverage-action">Comprar ${esc(snapshot.targetToBuyLabel)}</span>` : ''}
     `;
 
-    statusCell.innerHTML = `<span class="badge ${snapshot.statusClassName}">${esc(snapshot.statusLabel)}</span>`;
+    statusEl.className = `badge ${snapshot.statusClassName}`;
+    statusEl.textContent = snapshot.statusLabel;
     syncCategorySummary(item.categoryId);
     syncNavBadge(item.categoryId);
     syncStateMeta();
