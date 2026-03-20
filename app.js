@@ -5,6 +5,7 @@
     storageContainers,
     procurementPhases,
     protocolCards,
+    buildShoppingList,
     computeStockSnapshot,
     formatQuantity,
     getInputStep,
@@ -64,6 +65,7 @@
     refreshChrome();
     renderNavigation();
     renderMain();
+    syncShoppingBadge();
     bindEvents();
   }
 
@@ -72,6 +74,12 @@
       const tabButton = event.target.closest('[data-tab-target]');
       if (tabButton) {
         showTab(tabButton.dataset.tabTarget);
+        return;
+      }
+
+      const shopItem = event.target.closest('[data-shop-id]');
+      if (shopItem) {
+        toggleShoppingItem(shopItem.dataset.shopId);
         return;
       }
 
@@ -104,6 +112,9 @@
           break;
         case 'import-backup':
           backupImportInput.click();
+          break;
+        case 'clear-shopping':
+          clearShoppingChecks();
           break;
         case 'reset-state':
           resetState();
@@ -173,6 +184,15 @@
       return '';
     }
 
+    if (section.type === 'shopping') {
+      const list = buildShoppingList(state.persisted.stock);
+      const unchecked = list.filter(item => !state.persisted.checklist['shop-' + item.id]).length;
+      if (unchecked > 0) {
+        return `<span class="tab-badge tab-badge-shopping">${unchecked}</span>`;
+      }
+      return '';
+    }
+
     const summary = summarizeCategory(section.id, state.persisted.stock);
     if (summary.alert > 0) {
       return `<span class="tab-badge">${summary.alert}</span>`;
@@ -208,6 +228,10 @@
   function renderSectionBody(section) {
     if (section.type === 'overview') {
       return renderOverview();
+    }
+
+    if (section.type === 'shopping') {
+      return `<div class="shopping-body">${renderShoppingTab()}</div>`;
     }
 
     if (section.type === 'protocols') {
@@ -335,6 +359,134 @@
     `;
   }
 
+  function renderShoppingTab() {
+    const groups = groupShoppingList(state.persisted.stock);
+    const totalItems = groups.reduce((sum, g) => sum + g.items.length, 0);
+
+    if (totalItems === 0) {
+      return `
+        <div class="shopping-empty">
+          <div class="shopping-empty-icon">✓</div>
+          <p>Tudo verde. Nenhum item abaixo do estoque ideal.</p>
+        </div>
+      `;
+    }
+
+    const checkedCount = groups.reduce((sum, g) =>
+      sum + g.items.filter(item => state.persisted.checklist['shop-' + item.id]).length, 0);
+
+    return `
+      <div class="shopping-header">
+        <div class="shopping-progress">
+          <span class="shopping-progress-count">${checkedCount}/${totalItems}</span>
+          <span class="shopping-progress-label">${checkedCount === totalItems ? 'Tudo pego!' : 'itens no carrinho'}</span>
+        </div>
+        <button type="button" class="btn-secondary btn-sm" data-action="clear-shopping">Limpar checks</button>
+      </div>
+      <div class="shopping-progress-bar">
+        <div class="shopping-progress-fill" style="width: ${totalItems > 0 ? Math.round((checkedCount / totalItems) * 100) : 0}%"></div>
+      </div>
+      ${groups.map(group => `
+        <div class="shopping-group">
+          <h3 class="shopping-group-title">${esc(group.label)} <span class="shopping-group-count">${group.items.length}</span></h3>
+          <div class="shopping-items">
+            ${group.items.map(item => {
+              const checked = state.persisted.checklist['shop-' + item.id];
+              const marker = item.status === 'alert' ? 'alert' : 'warn';
+              return `
+                <button
+                  type="button"
+                  class="shopping-item${checked ? ' shopping-done' : ''}"
+                  data-shop-id="${item.id}"
+                  aria-pressed="${checked ? 'true' : 'false'}"
+                >
+                  <span class="shopping-check">${checked ? '✓' : ''}</span>
+                  <span class="shopping-item-info">
+                    <span class="shopping-item-name">${item.highlight ? '<span class="star">★</span>' : ''}${esc(item.label)}</span>
+                    <span class="shopping-item-qty badge-${marker}">Comprar ${esc(item.targetToBuyLabel)}</span>
+                  </span>
+                  <span class="shopping-item-current">${esc(formatQuantity(item.current, item.unit))} em casa</span>
+                </button>
+              `;
+            }).join('')}
+          </div>
+        </div>
+      `).join('')}
+    `;
+  }
+
+  function toggleShoppingItem(itemId) {
+    const checkId = 'shop-' + itemId;
+    state.persisted = toggleChecklistValue(state.persisted, checkId, nowIso());
+    debouncedPersist();
+    refreshShoppingTab();
+  }
+
+  function clearShoppingChecks() {
+    const keys = Object.keys(state.persisted.checklist).filter(k => k.startsWith('shop-'));
+    keys.forEach(key => {
+      if (state.persisted.checklist[key]) {
+        state.persisted = toggleChecklistValue(state.persisted, key, nowIso());
+      }
+    });
+    debouncedPersist();
+    refreshShoppingTab();
+  }
+
+  function refreshShoppingTab() {
+    const section = document.getElementById('section-shopping');
+    if (!section) {
+      return;
+    }
+
+    const shoppingSection = sections.find(s => s.id === 'shopping');
+    const body = renderShoppingTab();
+    const kicker = section.querySelector('.section-kicker');
+    const title = section.querySelector('.section-title');
+    const sub = section.querySelector('.section-sub');
+
+    // Re-render just the body (everything after sub)
+    const bodyContainer = section.querySelector('.shopping-body');
+    if (bodyContainer) {
+      bodyContainer.innerHTML = body;
+    } else {
+      // Wrap body content
+      let bodyEl = document.createElement('div');
+      bodyEl.className = 'shopping-body';
+      bodyEl.innerHTML = body;
+      // Remove old body content (everything after sub)
+      while (sub.nextSibling) {
+        sub.nextSibling.remove();
+      }
+      section.appendChild(bodyEl);
+    }
+    syncShoppingBadge();
+  }
+
+  function syncShoppingBadge() {
+    const btn = navHost.querySelector('[data-tab-target="shopping"]');
+    if (!btn) {
+      return;
+    }
+
+    const list = buildShoppingList(state.persisted.stock);
+    const unchecked = list.filter(item => !state.persisted.checklist['shop-' + item.id]).length;
+    const existing = btn.querySelector('.tab-badge');
+
+    if (unchecked > 0) {
+      if (existing) {
+        existing.textContent = unchecked;
+      } else {
+        const badge = document.createElement('span');
+        badge.className = 'tab-badge tab-badge-shopping';
+        badge.textContent = unchecked;
+        btn.appendChild(badge);
+      }
+    } else if (existing) {
+      existing.remove();
+    }
+  }
+
   function renderProtocols() {
     return `
       <div class="action-row">
@@ -384,6 +536,10 @@
     state.activeTab = tabId;
     window.location.hash = tabId;
     syncActiveTab();
+
+    if (tabId === 'shopping') {
+      refreshShoppingTab();
+    }
   }
 
   function syncActiveTab() {
@@ -427,6 +583,7 @@
     statusEl.textContent = snapshot.statusLabel;
     syncCategorySummary(item.categoryId);
     syncNavBadge(item.categoryId);
+    syncShoppingBadge();
     syncStateMeta();
   }
 
