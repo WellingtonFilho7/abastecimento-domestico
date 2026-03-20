@@ -6,7 +6,7 @@
 <meta name="description" content="Aplicação local-first para abastecimento doméstico rural com rotina de compras, inventário e protocolos da casa.">
 <meta name="theme-color" content="#f5f7fa">
 <meta name="mobile-web-app-capable" content="yes">
-<title>Codex de Resiliência Doméstica</title>
+<title>Estoque da Casa</title>
 <link rel="manifest" href="./manifest.webmanifest">
 <link rel="icon" href="./icons/icon-192.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="./icons/icon-192.svg">
@@ -51,10 +51,7 @@
     margin: 0;
     min-height: 100vh;
     color: var(--text);
-    background:
-      radial-gradient(circle at top left, rgba(139, 167, 194, 0.22), transparent 28%),
-      radial-gradient(circle at top right, rgba(236, 243, 248, 0.85), transparent 30%),
-      linear-gradient(180deg, var(--bg-soft) 0%, var(--bg) 36%, #fbfdff 100%);
+    background: var(--bg);
     font: 500 15px/1.55 'Manrope', sans-serif;
   }
 
@@ -62,7 +59,7 @@
   button { font-family: inherit; }
 
   .site-header {
-    padding: 28px 20px 18px;
+    padding: 20px 20px 14px;
   }
 
   .site-header__shell,
@@ -74,13 +71,12 @@
   }
 
   .site-header__shell {
-    display: grid;
-    gap: 18px;
-    grid-template-columns: minmax(0, 1.4fr) minmax(280px, 0.8fr);
-    align-items: end;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
   }
 
-  .brand-kicker,
   .eyebrow,
   .page-kicker,
   .mini-label,
@@ -92,26 +88,21 @@
     letter-spacing: 0.08em;
   }
 
-  .brand-kicker {
-    display: inline-flex;
-    margin-bottom: 10px;
-    color: var(--accent-strong);
-  }
 
   h1, h2, h3, h4, p { margin: 0; }
 
   h1 {
-    font-size: clamp(2.2rem, 5vw, 3.9rem);
-    line-height: 0.98;
-    letter-spacing: -0.05em;
+    font-size: clamp(1.4rem, 3vw, 1.8rem);
+    line-height: 1.1;
+    letter-spacing: -0.03em;
     font-weight: 800;
   }
 
   .brand-copy p {
-    margin-top: 14px;
-    max-width: 700px;
+    margin-top: 6px;
+    max-width: 500px;
     color: var(--text-soft);
-    font-size: 15px;
+    font-size: 13px;
   }
 
   .brand-meta {
@@ -124,12 +115,11 @@
   .meta-pill {
     display: inline-flex;
     align-items: center;
-    padding: 9px 12px;
+    padding: 6px 10px;
     border-radius: var(--radius-pill);
-    background: rgba(255, 255, 255, 0.78);
+    background: var(--surface-soft);
     border: 1px solid var(--line);
     color: var(--text-soft);
-    box-shadow: var(--shadow-sm);
     font: 500 11px/1.1 'IBM Plex Mono', monospace;
   }
 
@@ -137,10 +127,9 @@
     position: sticky;
     top: 0;
     z-index: 20;
-    padding: 0 0 14px;
-    backdrop-filter: blur(22px);
-    background: linear-gradient(180deg, rgba(245, 247, 250, 0.94), rgba(245, 247, 250, 0.82));
-    border-bottom: 1px solid rgba(95, 109, 122, 0.08);
+    padding: 12px 0 14px;
+    background: var(--bg);
+    border-bottom: 1px solid var(--line);
   }
 
   .chrome-shell {
@@ -160,12 +149,11 @@
     display: flex;
     align-items: center;
     gap: 12px;
-    min-height: 58px;
+    min-height: 52px;
     padding: 0 14px 0 16px;
-    border-radius: 22px;
-    background: rgba(255, 255, 255, 0.82);
-    border: 1px solid rgba(95, 109, 122, 0.12);
-    box-shadow: var(--shadow-sm);
+    border-radius: var(--radius-sm);
+    background: var(--surface);
+    border: 1px solid var(--line);
   }
 
   .search-icon {
@@ -216,9 +204,8 @@
   .action-btn,
   .sheet-action {
     padding: 0 16px;
-    background: linear-gradient(135deg, var(--accent-strong), var(--accent));
+    background: var(--accent-strong);
     color: white;
-    box-shadow: 0 14px 28px rgba(68, 101, 127, 0.22);
   }
 
   .action-btn-secondary,
@@ -243,12 +230,11 @@
 
   #nav-tabs {
     display: inline-flex;
-    gap: 8px;
+    gap: 4px;
     padding: 4px;
-    border-radius: 24px;
-    background: rgba(255, 255, 255, 0.72);
-    border: 1px solid rgba(95, 109, 122, 0.1);
-    box-shadow: var(--shadow-sm);
+    border-radius: var(--radius-lg);
+    background: var(--surface);
+    border: 1px solid var(--line);
   }
 
   .nav-btn,
@@ -278,9 +264,8 @@
   }
 
   .nav-btn.active {
-    background: linear-gradient(135deg, #ffffff, #f0f6fb);
-    color: var(--text);
-    box-shadow: 0 12px 24px rgba(70, 98, 122, 0.12);
+    background: var(--accent-soft);
+    color: var(--accent-strong);
   }
 
   .nav-btn.active .nav-icon,
@@ -326,16 +311,13 @@
   .inventory-card,
   .checklist-card,
   .meta-card,
-  .storage-card,
-  .governance-card,
   .protocol-callout,
   .system-hero,
   .search-result-card {
-    background: var(--surface-elevated);
+    background: var(--surface);
     border: 1px solid var(--line);
     border-radius: var(--radius-lg);
     box-shadow: var(--shadow-sm);
-    backdrop-filter: blur(18px);
   }
 
   .panel,
@@ -354,10 +336,7 @@
 
   .hero-card {
     padding: 24px;
-    background:
-      radial-gradient(circle at top right, rgba(111, 143, 168, 0.22), transparent 30%),
-      radial-gradient(circle at bottom left, rgba(221, 230, 238, 0.92), transparent 38%),
-      linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(244, 249, 252, 0.96));
+    background: var(--surface-soft);
   }
 
   .hero-card h2,
@@ -384,17 +363,13 @@
 
   .hero-stats,
   .summary-grid,
-  .system-grid,
-  .storage-grid,
-  .governance-grid,
-  .phase-grid {
+  .system-grid {
     display: grid;
     gap: 14px;
   }
 
   .hero-stats,
-  .summary-grid,
-  .phase-grid {
+  .summary-grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
@@ -412,10 +387,9 @@
     flex-direction: column;
     justify-content: flex-end;
     gap: 10px;
-    background: rgba(255, 255, 255, 0.74);
+    background: var(--surface);
     border: 1px solid var(--line);
     border-radius: var(--radius-md);
-    box-shadow: var(--shadow-sm);
   }
 
   .hero-stat strong,
@@ -548,15 +522,15 @@
   }
 
   .summary-card-alert {
-    background: linear-gradient(180deg, rgba(255, 230, 230, 0.96), rgba(255, 255, 255, 0.92));
+    background: var(--alert-soft);
   }
 
   .summary-card-warn {
-    background: linear-gradient(180deg, rgba(255, 242, 220, 0.96), rgba(255, 255, 255, 0.92));
+    background: var(--warn-soft);
   }
 
   .summary-card-balance {
-    background: linear-gradient(180deg, rgba(219, 232, 241, 0.88), rgba(255, 255, 255, 0.94));
+    background: var(--accent-soft);
   }
 
   .summary-card-sub {
@@ -716,9 +690,9 @@
 
   .inventory-card-meta {
     padding: 14px;
-    border-radius: var(--radius-md);
-    background: rgba(237, 244, 249, 0.72);
-    border: 1px solid rgba(95, 109, 122, 0.08);
+    border-radius: var(--radius-sm);
+    background: var(--surface-soft);
+    border: 1px solid var(--line);
   }
 
   .cycle-grid {
@@ -756,7 +730,7 @@
   }
 
   .protocol-callout {
-    background: linear-gradient(180deg, rgba(219, 232, 241, 0.72), rgba(255, 255, 255, 0.92));
+    background: var(--surface-soft);
   }
 
   .checklist-grid {
@@ -827,25 +801,17 @@
     align-items: start;
   }
 
-  .system-grid,
-  .storage-grid,
-  .governance-grid {
+  .system-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  .phase-card,
-  .governance-card,
-  .storage-card,
   .meta-card {
-    background: rgba(255, 255, 255, 0.9);
+    background: var(--surface);
     border: 1px solid var(--line);
     border-radius: var(--radius-md);
-    box-shadow: var(--shadow-sm);
   }
 
-  .storage-card strong,
-  .governance-card strong,
-  .phase-card strong {
+  .meta-card strong {
     display: block;
     font-size: 15px;
     line-height: 1.3;
@@ -875,8 +841,7 @@
     align-items: center;
     justify-content: center;
     padding: 20px;
-    background: rgba(14, 24, 34, 0.42);
-    backdrop-filter: blur(10px);
+    background: rgba(14, 24, 34, 0.4);
   }
 
   #shopping-modal[hidden] { display: none; }
@@ -884,8 +849,8 @@
   .modal-box {
     width: min(720px, 100%);
     padding: 26px;
-    border-radius: var(--radius-xl);
-    background: rgba(255, 255, 255, 0.96);
+    border-radius: var(--radius-lg);
+    background: var(--surface);
     border: 1px solid var(--line);
     box-shadow: var(--shadow-md);
   }
@@ -973,9 +938,119 @@
   .page-empty {
     padding: 26px;
     border-radius: var(--radius-lg);
-    background: rgba(255, 255, 255, 0.72);
+    background: var(--surface-soft);
     border: 1px dashed var(--line-strong);
     color: var(--text-soft);
+  }
+
+  /* Bottom sheet for item editing */
+  .item-sheet {
+    position: fixed;
+    inset: 0;
+    z-index: 45;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+  }
+
+  .item-sheet-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(14, 24, 34, 0.35);
+  }
+
+  .item-sheet-box {
+    position: relative;
+    width: 100%;
+    max-width: 480px;
+    padding: 20px 24px 32px;
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    background: var(--surface);
+    box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.12);
+  }
+
+  .item-sheet-handle {
+    width: 36px;
+    height: 4px;
+    margin: 0 auto 16px;
+    border-radius: 2px;
+    background: var(--line-strong);
+  }
+
+  .item-sheet-title {
+    font-size: 1.3rem;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    margin-bottom: 4px;
+  }
+
+  .item-sheet-meta {
+    color: var(--text-soft);
+    font-size: 13px;
+    margin-bottom: 20px;
+  }
+
+  .item-sheet-input-group {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+
+  .item-sheet-step {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    border: 1px solid var(--line);
+    border-radius: 50%;
+    background: var(--surface-soft);
+    color: var(--accent-strong);
+    font-size: 20px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 140ms ease;
+  }
+
+  .item-sheet-step:active {
+    background: var(--accent-soft);
+  }
+
+  .item-sheet-input {
+    width: 100px;
+    border: 0;
+    background: transparent;
+    color: var(--text);
+    text-align: center;
+    font: 700 2rem/1 'IBM Plex Mono', monospace;
+    letter-spacing: -0.02em;
+  }
+
+  .item-sheet-input:focus { outline: none; }
+
+  .item-sheet-unit {
+    font: 500 14px/1 'IBM Plex Mono', monospace;
+    color: var(--text-soft);
+  }
+
+  .item-sheet-info {
+    display: grid;
+    gap: 8px;
+    grid-template-columns: 1fr 1fr;
+    padding: 14px;
+    border-radius: var(--radius-sm);
+    background: var(--surface-soft);
+    border: 1px solid var(--line);
+    font-size: 13px;
+    color: var(--text-soft);
+  }
+
+  .item-sheet-info strong {
+    display: block;
+    color: var(--text);
+    font-weight: 700;
   }
 
   [hidden] { display: none !important; }
@@ -991,14 +1066,11 @@
     .purchase-overview,
     .cycle-grid,
     .hero-stats,
-    .summary-grid,
-    .phase-grid {
+    .summary-grid {
       grid-template-columns: 1fr;
     }
 
-    .system-grid,
-    .storage-grid,
-    .governance-grid {
+    .system-grid {
       grid-template-columns: 1fr;
     }
   }
@@ -1026,11 +1098,10 @@
       z-index: 30;
       display: block;
       padding: 8px;
-      border-radius: 26px;
-      background: rgba(255, 255, 255, 0.94);
-      border: 1px solid rgba(95, 109, 122, 0.12);
+      border-radius: var(--radius-lg);
+      background: var(--surface);
+      border: 1px solid var(--line);
       box-shadow: var(--shadow-md);
-      backdrop-filter: blur(22px);
     }
 
     .search-row {
@@ -1070,7 +1141,6 @@
   }
 
   @media (max-width: 560px) {
-    .site-header__shell,
     .focus-grid,
     .search-results-grid,
     .checklist-grid,
@@ -1082,7 +1152,8 @@
     }
 
     .site-header__shell {
-      grid-template-columns: 1fr;
+      flex-direction: column;
+      align-items: flex-start;
     }
 
     .brand-meta {
@@ -1119,9 +1190,8 @@
   <header class="site-header">
     <div class="site-header__shell">
       <div class="brand-copy">
-        <span class="brand-kicker">Manual operacional local-first</span>
-        <h1>Codex de Resiliência Doméstica</h1>
-        <p>Compras, estoque, protocolos e sistema da casa reunidos em uma interface mobile-first, clara e pronta para ação.</p>
+        <h1>Estoque da Casa</h1>
+        <p>Compras, estoque e protocolos da casa em uma interface clara e pronta para ação.</p>
       </div>
       <div class="brand-meta" id="header-meta"></div>
     </div>
@@ -1147,7 +1217,7 @@
   <main id="app-main"></main>
 
   <footer>
-    Documento operacional local-first · último registro <span id="state-last-updated">Nunca</span> · atualizado em <span id="update-date"></span>
+    Estoque da Casa · último registro <span id="state-last-updated">Nunca</span> · <span id="update-date"></span>
   </footer>
 
   <nav class="mobile-nav" aria-label="Navegação principal mobile">
@@ -1162,6 +1232,22 @@
         <button type="button" data-action="copy-list">Copiar</button>
         <button type="button" data-action="modal-close">Fechar</button>
       </div>
+    </div>
+  </div>
+
+  <div id="item-sheet" class="item-sheet" hidden>
+    <div class="item-sheet-overlay"></div>
+    <div class="item-sheet-box" role="dialog" aria-modal="true" aria-labelledby="sheet-item-name">
+      <div class="item-sheet-handle"></div>
+      <h3 id="sheet-item-name" class="item-sheet-title"></h3>
+      <p id="sheet-item-meta" class="item-sheet-meta"></p>
+      <div class="item-sheet-input-group">
+        <button type="button" class="item-sheet-step" data-sheet-action="decrement" aria-label="Diminuir">−</button>
+        <input id="sheet-stock-input" class="item-sheet-input" type="number" min="0" inputmode="decimal" aria-label="Quantidade">
+        <span id="sheet-unit" class="item-sheet-unit"></span>
+        <button type="button" class="item-sheet-step" data-sheet-action="increment" aria-label="Aumentar">+</button>
+      </div>
+      <div id="sheet-info" class="item-sheet-info"></div>
     </div>
   </div>
 
