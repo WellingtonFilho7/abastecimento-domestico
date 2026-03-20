@@ -100,6 +100,14 @@
       alertBody: 'Itens de uso recorrente e itens de contingência convivem aqui, mas são calculados de forma diferente: recorrência por consumo, reserva por mínimo/ideal.',
     },
     {
+      id: 'shopping',
+      label: 'Compras',
+      icon: '✔',
+      type: 'shopping',
+      title: 'Lista de compras',
+      subtitle: 'Checklist prático para usar na hora das compras. Gerado automaticamente a partir do estoque.',
+    },
+    {
       id: 'protocols',
       label: 'Protocolos',
       icon: '☰',
