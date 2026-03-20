@@ -85,6 +85,28 @@ test('exports and imports a versioned backup without losing state', () => {
   assert.equal(imported.meta.lastUpdatedAt, '2026-03-14T10:07:00.000Z');
 });
 
+test('rejects arbitrary valid JSON when importing backup', () => {
+  assert.throws(() => {
+    importAppState('{"foo":"bar"}', '2026-03-20T10:00:00.000Z');
+  }, /Backup inválido/);
+});
+
+test('preserves exportedAt across export and hydrate cycle', () => {
+  const now = '2026-03-20T10:00:00.000Z';
+  const exportedAt = '2026-03-20T10:05:00.000Z';
+  const storage = createFakeStorage();
+  const original = createEmptyAppState(now);
+  const backup = exportAppState(original, exportedAt);
+
+  storage.setItem(APP_STATE_KEY, backup);
+
+  const hydrated = hydrateAppState(storage, '2026-03-20T10:10:00.000Z');
+  const persisted = JSON.parse(storage.getItem(APP_STATE_KEY));
+
+  assert.equal(hydrated.meta.exportedAt, exportedAt);
+  assert.equal(persisted.meta.exportedAt, exportedAt);
+});
+
 test('reset clears versioned and legacy storage keys', () => {
   const storage = createFakeStorage({
     [APP_STATE_KEY]: JSON.stringify(createEmptyAppState('2026-03-14T10:00:00.000Z')),

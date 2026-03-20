@@ -23,6 +23,7 @@
         checklistUpdatedAt: null,
         lastUpdatedAt: null,
         importedAt: null,
+        exportedAt: null,
       },
     };
   }
@@ -78,7 +79,16 @@
       checklistUpdatedAt: typeof safeMeta.checklistUpdatedAt === 'string' ? safeMeta.checklistUpdatedAt : null,
       lastUpdatedAt: typeof safeMeta.lastUpdatedAt === 'string' ? safeMeta.lastUpdatedAt : null,
       importedAt: typeof safeMeta.importedAt === 'string' ? safeMeta.importedAt : null,
+      exportedAt: typeof safeMeta.exportedAt === 'string' ? safeMeta.exportedAt : null,
     };
+  }
+
+  function isValidImportedAppState(rawState) {
+    return isRecord(rawState)
+      && rawState.version === APP_STATE_VERSION
+      && isRecord(rawState.stock)
+      && isRecord(rawState.checklist)
+      && isRecord(rawState.meta);
   }
 
   function normalizeAppState(rawState, fallbackNow) {
@@ -194,7 +204,7 @@
   function importAppState(rawText, now = new Date().toISOString()) {
     const parsed = parseJson(rawText, null);
 
-    if (!parsed) {
+    if (!isValidImportedAppState(parsed)) {
       throw new Error('Backup inválido');
     }
 
