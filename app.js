@@ -2,8 +2,6 @@
   const {
     appProfile,
     sections,
-    storageContainers,
-    procurementPhases,
     protocolCards,
     buildShoppingList,
     computeStockSnapshot,
@@ -62,7 +60,7 @@
       label: 'Sistema',
       icon: '◎',
       title: 'Sistema',
-      subtitle: 'Backup, auditoria local, bunker hermético e governança do app.',
+      subtitle: 'Backup, auditoria e estado local do app.',
     },
   ];
 
@@ -96,6 +94,14 @@
   const searchInput = document.getElementById('global-search');
   const searchClear = document.getElementById('search-clear');
 
+  const itemSheet = document.getElementById('item-sheet');
+  const sheetItemName = document.getElementById('sheet-item-name');
+  const sheetItemMeta = document.getElementById('sheet-item-meta');
+  const sheetStockInput = document.getElementById('sheet-stock-input');
+  const sheetUnit = document.getElementById('sheet-unit');
+  const sheetInfo = document.getElementById('sheet-info');
+  const sheetState = { itemId: null, step: 1 };
+
   init();
 
   function init() {
@@ -115,6 +121,18 @@
       const tabTarget = event.target.closest('[data-tab-target]');
       if (tabTarget) {
         showTab(tabTarget.dataset.tabTarget);
+        return;
+      }
+
+      const sheetOverlay = event.target.closest('.item-sheet-overlay');
+      if (sheetOverlay) {
+        closeItemSheet();
+        return;
+      }
+
+      const inventoryCardTap = event.target.closest('.inventory-card[data-item-id]');
+      if (inventoryCardTap && !event.target.closest('.stock-input')) {
+        openItemSheet(inventoryCardTap.dataset.itemId);
         return;
       }
 
@@ -157,17 +175,28 @@
         default:
           break;
       }
+
+      const sheetAction = action.dataset.sheetAction;
+      if (sheetAction === 'increment' || sheetAction === 'decrement') {
+        stepSheetValue(sheetAction === 'increment' ? 1 : -1);
+      }
     });
 
     document.addEventListener('input', event => {
       const input = event.target.closest('.stock-input');
-      if (!input) {
+      if (input) {
+        state.persisted = updateStockValue(state.persisted, input.dataset.itemId, input.value, nowIso());
+        persistState();
+        syncInventoryItemViews(input.dataset.itemId);
         return;
       }
 
-      state.persisted = updateStockValue(state.persisted, input.dataset.itemId, input.value, nowIso());
-      persistState();
-      syncInventoryItemViews(input.dataset.itemId);
+      if (event.target === sheetStockInput && sheetState.itemId) {
+        state.persisted = updateStockValue(state.persisted, sheetState.itemId, sheetStockInput.value, nowIso());
+        persistState();
+        syncInventoryItemViews(sheetState.itemId);
+        syncSheetInfo(sheetState.itemId);
+      }
     });
 
     document.addEventListener('keydown', event => {
@@ -176,8 +205,15 @@
         toggleChecklist(event.target.dataset.checkId);
       }
 
-      if (event.key === 'Escape' && !modal.hasAttribute('hidden')) {
-        closeModal();
+      if (event.key === 'Escape') {
+        if (!itemSheet.hasAttribute('hidden')) {
+          closeItemSheet();
+          return;
+        }
+
+        if (!modal.hasAttribute('hidden')) {
+          closeModal();
+        }
       }
 
       if (event.key === '/' && event.target.tagName !== 'INPUT' && event.target.tagName !== 'TEXTAREA') {
@@ -216,10 +252,8 @@
 
   function renderHeaderMeta() {
     headerMeta.innerHTML = [
-      appProfile.location,
       appProfile.purchaseStrategy,
       appProfile.autonomyWindow,
-      state.pwa.label,
     ].concat(appProfile.restrictions).map(item => {
       return `<span class="meta-pill">${item}</span>`;
     }).join('');
@@ -305,7 +339,7 @@
       <div class="page-heading">
         <span class="page-kicker">${section.label}</span>
         <h2 class="page-title">O que pede atenção agora</h2>
-        <p class="page-sub">A primeira tela do app foi reorganizada para responder compra, urgência e equilíbrio da casa sem parecer relatório.</p>
+        <p class="page-sub">Compra, urgência e equilíbrio da casa em uma única tela.</p>
       </div>
 
       ${state.searchQuery.trim() ? renderSearchResults(results) : ''}
@@ -825,23 +859,6 @@
         ` : `
           <div class="page-empty">Nenhuma compra pendente para a busca atual. Se o estoque está verde, use essa tela como conferência do próximo ciclo.</div>
         `}
-
-        <section class="panel">
-          <div class="section-header">
-            <div>
-              <span class="eyebrow">Fluxo de ida</span>
-              <h3>Roteiro operacional de compra</h3>
-            </div>
-          </div>
-          <div class="phase-grid">
-            ${procurementPhases.map(phase => `
-              <article class="phase-card">
-                <strong>${phase.title}</strong>
-                <p>${phase.body}</p>
-              </article>
-            `).join('')}
-          </div>
-        </section>
       </div>
     `;
   }
@@ -952,7 +969,7 @@
         <div class="page">
           <section class="system-hero">
             <span class="eyebrow">Painel local</span>
-            <h2>Backup, auditoria e estado vivo deste navegador</h2>
+            <h2>Backup e estado do app</h2>
             <p>${appProfile.singleUserNote}</p>
             <div class="system-actions">
               <button type="button" class="action-btn" data-action="export-backup">Exportar backup</button>
@@ -972,12 +989,12 @@
               <article class="meta-card">
                 <span class="meta-card-label">Storage</span>
                 <strong>v${state.persisted.version}</strong>
-                <p>Chave versionada do estado local.</p>
+                <p>Versão do estado local.</p>
               </article>
               <article class="meta-card">
                 <span class="meta-card-label">Último registro</span>
                 <strong>${formatAuditTimestamp(state.persisted.meta.lastUpdatedAt)}</strong>
-                <p>Dado vivo salvo neste navegador.</p>
+                <p>Última alteração salva.</p>
               </article>
               <article class="meta-card">
                 <span class="meta-card-label">Estoque</span>
@@ -1000,45 +1017,6 @@
                 <p>${appProfile.monthlyBudget} · ${appProfile.purchaseStrategy}</p>
               </article>
             </div>
-          </section>
-        </div>
-
-        <div class="page">
-          <section class="panel">
-            <div class="section-header">
-              <div>
-                <span class="eyebrow">Bunker</span>
-                <h3>Infraestrutura de armazenagem</h3>
-              </div>
-            </div>
-            <div class="storage-grid">
-              ${storageContainers.map(container => `
-                <article class="storage-card">
-                  <strong>${container.label}</strong>
-                  <p>${container.contents}</p>
-                  <p>${container.quantity} un · ${container.totalVolume}</p>
-                  <p>${container.note}</p>
-                </article>
-              `).join('')}
-            </div>
-          </section>
-
-          <section class="panel">
-            <div class="section-header">
-              <div>
-                <span class="eyebrow">Leitura do sistema</span>
-                <h3>Dado, protocolo e hipótese</h3>
-              </div>
-            </div>
-            <div class="governance-grid">
-              ${appProfile.governanceCards.map(card => `
-                <article class="governance-card">
-                  <strong>${card.label}</strong>
-                  <p>${card.body}</p>
-                </article>
-              `).join('')}
-            </div>
-            <p class="panel-copy">${appProfile.editorialCaveat}</p>
           </section>
         </div>
       </div>
@@ -1121,7 +1099,7 @@
     }
 
     return [
-      'LISTA DE COMPRAS · CODEX DE RESILIÊNCIA DOMÉSTICA',
+      'LISTA DE COMPRAS · ESTOQUE DA CASA',
       `Gerada em ${new Date().toLocaleDateString('pt-BR')}`,
       '',
       ...groups.flatMap(group => {
@@ -1156,7 +1134,7 @@
 
   function exportBackup() {
     const payload = exportAppState(state.persisted, nowIso());
-    const filename = `codex-resiliencia-backup-${new Date().toISOString().slice(0, 10)}.json`;
+    const filename = `estoque-da-casa-backup-${new Date().toISOString().slice(0, 10)}.json`;
     const blob = new Blob([payload], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const anchor = document.createElement('a');
@@ -1445,6 +1423,58 @@
     state.toastTimer = setTimeout(() => {
       toast.hidden = true;
     }, 2200);
+  }
+
+  function openItemSheet(itemId) {
+    const item = getItemById(itemId);
+    if (!item) {
+      return;
+    }
+
+    sheetState.itemId = itemId;
+    sheetState.step = getInputStep(item);
+    sheetItemName.textContent = item.label;
+    sheetItemMeta.textContent = `${getCategoryName(item.categoryId)} · ${item.note}`;
+    sheetStockInput.value = state.persisted.stock[itemId] || '';
+    sheetStockInput.step = sheetState.step;
+    sheetUnit.textContent = item.unit;
+    syncSheetInfo(itemId);
+    itemSheet.hidden = false;
+    sheetStockInput.focus();
+  }
+
+  function closeItemSheet() {
+    itemSheet.hidden = true;
+    sheetState.itemId = null;
+  }
+
+  function stepSheetValue(direction) {
+    if (!sheetState.itemId) {
+      return;
+    }
+
+    const current = Number.parseFloat(sheetStockInput.value) || 0;
+    const next = Math.max(0, current + direction * sheetState.step);
+    sheetStockInput.value = next;
+    state.persisted = updateStockValue(state.persisted, sheetState.itemId, String(next), nowIso());
+    persistState();
+    syncInventoryItemViews(sheetState.itemId);
+    syncSheetInfo(sheetState.itemId);
+  }
+
+  function syncSheetInfo(itemId) {
+    const item = getItemById(itemId);
+    if (!item) {
+      return;
+    }
+
+    const snapshot = computeStockSnapshot(item, state.persisted.stock[itemId] || 0);
+    sheetInfo.innerHTML = `
+      <div><strong>${snapshot.stockTargetLabel}</strong> Meta</div>
+      <div><strong>${snapshot.coverage}</strong> Cobertura</div>
+      <div><strong>${snapshot.purchaseCycleLabel}</strong> Ciclo</div>
+      <div><strong>${snapshot.targetToBuyLabel || 'Nenhuma'}</strong> Compra sugerida</div>
+    `;
   }
 
   function escapeHtml(value) {
