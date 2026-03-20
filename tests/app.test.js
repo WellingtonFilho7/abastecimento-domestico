@@ -64,25 +64,25 @@ function type(window, input, value) {
   input.dispatchEvent(new window.Event('input', { bubbles: true }));
 }
 
-test('boots into the Hoje page by default', () => {
+test('boots into the Estoque page by default', () => {
   const dom = createAppDom();
   const { document } = dom.window;
 
-  assert.equal(document.body.dataset.tab, 'today');
-  assert.match(document.querySelector('.page-title').textContent, /atenção agora/i);
-  assert.match(document.getElementById('app-main').textContent, /Itens críticos agora/i);
+  assert.equal(document.body.dataset.tab, 'estoque');
+  assert.ok(document.querySelector('.summary-chip'));
+  assert.ok(document.querySelector('.item-row'));
 });
 
-test('search shows matching inventory results from the home screen', () => {
+test('search shows matching inventory results from the estoque page', () => {
   const dom = createAppDom();
   const { window } = dom;
   const { document } = window;
-  const search = document.getElementById('global-search');
+  const search = document.getElementById('inventory-search');
 
   type(window, search, 'arroz');
 
-  assert.match(document.getElementById('app-main').textContent, /Resultados para "arroz"/i);
-  assert.match(document.getElementById('app-main').textContent, /Arroz branco/i);
+  const main = document.getElementById('app-main');
+  assert.match(main.textContent, /Arroz branco/i);
 });
 
 test('shopping action opens the shopping list modal', () => {
@@ -103,14 +103,11 @@ test('updating stock changes coverage and status in inventory UI', () => {
   const dom = createAppDom();
   const { window } = dom;
   const { document } = window;
-  const inventoryTab = document.querySelector('[data-tab-target="inventory"]');
-
-  click(window, inventoryTab);
 
   const input = document.querySelector('.stock-input[data-item-id="arroz-branco"]');
   type(window, input, '4');
 
-  assert.match(document.body.dataset.tab, /inventory/i);
+  assert.match(document.body.dataset.tab, /estoque/i);
   assert.match(document.querySelector('[data-coverage-for="arroz-branco"]').textContent, /15d/i);
   assert.match(document.querySelector('[data-status-for="arroz-branco"]').textContent, /Atenção/i);
 });
