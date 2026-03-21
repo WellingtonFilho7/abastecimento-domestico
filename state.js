@@ -17,6 +17,7 @@
       version: APP_STATE_VERSION,
       stock: {},
       checklist: {},
+      prices: {},
       meta: {
         createdAt: now,
         stockUpdatedAt: null,
@@ -54,6 +55,17 @@
         .filter(([key]) => typeof key === 'string' && key)
         .map(([key, value]) => [key, value == null ? '' : String(value)])
         .filter(([, value]) => value !== '')
+    );
+  }
+
+  function sanitizePrices(prices) {
+    if (!isRecord(prices)) return {};
+
+    return Object.fromEntries(
+      Object.entries(prices)
+        .filter(([key]) => typeof key === 'string' && key)
+        .map(([key, value]) => [key, value == null ? '' : String(value)])
+        .filter(([, value]) => value !== '' && !isNaN(Number(value)) && Number(value) > 0)
     );
   }
 
@@ -95,12 +107,14 @@
     const base = createEmptyAppState(fallbackNow);
     const stock = sanitizeStock(rawState && rawState.stock);
     const checklist = sanitizeChecklist(rawState && rawState.checklist);
+    const prices = sanitizePrices(rawState && rawState.prices);
     const meta = normalizeMeta(rawState && rawState.meta, fallbackNow);
 
     return {
       version: APP_STATE_VERSION,
       stock,
       checklist,
+      prices,
       meta: {
         ...base.meta,
         ...meta,
@@ -163,6 +177,27 @@
       meta: {
         ...normalized.meta,
         stockUpdatedAt: now,
+        lastUpdatedAt: now,
+      },
+    };
+  }
+
+  function updatePriceValue(appState, itemId, value, now = new Date().toISOString()) {
+    const normalized = normalizeAppState(appState, now);
+    const nextPrices = { ...normalized.prices };
+    const serialized = value == null ? '' : String(value);
+
+    if (serialized === '' || isNaN(Number(serialized)) || Number(serialized) <= 0) {
+      delete nextPrices[itemId];
+    } else {
+      nextPrices[itemId] = serialized;
+    }
+
+    return {
+      ...normalized,
+      prices: nextPrices,
+      meta: {
+        ...normalized.meta,
         lastUpdatedAt: now,
       },
     };
@@ -234,6 +269,7 @@
     saveAppState,
     hydrateAppState,
     updateStockValue,
+    updatePriceValue,
     toggleChecklistValue,
     exportAppState,
     importAppState,
