@@ -361,7 +361,7 @@
         ${groups.map(group => `
           <div class="summary-chip chip-ok">
             <strong>${group.items.length}</strong>
-            <span>${group.label}</span>
+            <span>${group.label.split(' ')[0]}</span>
           </div>
         `).join('')}
       </div>
