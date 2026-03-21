@@ -11,10 +11,18 @@ Aplicação local-first para operação de abastecimento doméstico em contexto 
 
 ## Estrutura
 
-- `index.html`: casca da interface e estilos.
-- `domain.js`: dados estruturados + funções puras de cálculo.
+- `index.html`: casca da interface e estilos do app.
 - `app.js`: renderização, persistência local e interações.
-- `tests/domain.test.js`: regressão do domínio com `node --test`.
+- `domain.js`: dados estruturados + funções puras de cálculo.
+- `state.js`: persistência local, migração e sanitização do estado.
+- `tests/`: suíte de regressão com `node --test`.
+- `docs/`: planos, revisões e material de apoio do projeto.
+
+## Organização do repo
+
+- A raiz concentra apenas arquivos de runtime, deploy e testes.
+- Artefatos de revisão e questionários ficam em `docs/reviews/`.
+- Planos e decisões de implementação ficam em `docs/plans/`.
 
 ## Fonte de verdade
 
