@@ -524,19 +524,18 @@
       sum + g.items.reduce((s, item) => s + itemEstimate(item), 0), 0);
 
     return [
-      'LISTA DE COMPRAS · ESTOQUE DA CASA',
+      'LISTA DE COMPRAS',
       `Gerada em ${new Date().toLocaleDateString('pt-BR')}`,
       '',
       ...groups.flatMap(group => {
         const subtotal = group.items.reduce((s, item) => s + itemEstimate(item), 0);
-        const subtotalStr = subtotal > 0 ? ` · ~${formatBrl(subtotal)}` : '';
+        const subtotalStr = subtotal > 0 ? ` | ~${formatBrl(subtotal)}` : '';
         return [
-          `${group.label.toUpperCase()} · ${group.items.length} item(ns)${subtotalStr}`,
+          `${group.label.toUpperCase()} (${group.items.length} item(ns))${subtotalStr}`,
           ...group.items.map(item => {
-            const marker = item.status === 'alert' ? '🔴' : '🟡';
             const estimate = itemEstimate(item);
-            const priceStr = estimate > 0 ? ` · ~${formatBrl(estimate)}` : '';
-            return `${marker} ${item.label} · comprar ${item.targetToBuyLabel} · atual ${formatQuantity(item.current, item.unit)}${priceStr}`;
+            const priceStr = estimate > 0 ? ` | ~${formatBrl(estimate)}` : '';
+            return `${item.label} | comprar ${item.targetToBuyLabel} | atual ${formatQuantity(item.current, item.unit)}${priceStr}`;
           }),
           '',
         ];

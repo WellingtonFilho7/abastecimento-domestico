@@ -99,6 +99,21 @@ test('shopping action opens the shopping list modal', () => {
   assert.match(document.getElementById('shopping-list-text').textContent, /LISTA DE COMPRAS/i);
 });
 
+test('shopping list text is clean for copy and paste without visual markers', () => {
+  const dom = createAppDom();
+  const { window } = dom;
+  const { document } = window;
+  const trigger = document.querySelector('[data-action="shopping-list"]');
+
+  click(window, trigger);
+
+  const text = document.getElementById('shopping-list-text').textContent;
+
+  assert.doesNotMatch(text, /🔴|🟡|• /);
+  assert.match(text, /FEIRA SEMANAL|ATACADO MENSAL|CONTINGENCIA RURAL|CONTINGÊNCIA RURAL/i);
+  assert.match(text, /Arroz branco|Leite sem lactose|Papel higiênico/i);
+});
+
 test('updating stock changes coverage and status in inventory UI', () => {
   const dom = createAppDom();
   const { window } = dom;
