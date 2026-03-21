@@ -21,6 +21,7 @@
     resetStoredAppState,
     saveAppState,
     toggleChecklistValue,
+    updatePriceValue,
     updateStockValue,
   } = window.CodexState;
 
@@ -60,6 +61,7 @@
   const sheetItemName = document.getElementById('sheet-item-name');
   const sheetItemMeta = document.getElementById('sheet-item-meta');
   const sheetStockInput = document.getElementById('sheet-stock-input');
+  const sheetPriceInput = document.getElementById('sheet-price-input');
   const sheetUnit = document.getElementById('sheet-unit');
   const sheetInfo = document.getElementById('sheet-info');
   const sheetState = { itemId: null, step: 1 };
@@ -163,6 +165,12 @@
         state.persisted = updateStockValue(state.persisted, sheetState.itemId, sheetStockInput.value, nowIso());
         persistState();
         syncInventoryItemViews(sheetState.itemId);
+        syncSheetInfo(sheetState.itemId);
+      }
+
+      if (event.target === sheetPriceInput && sheetState.itemId) {
+        state.persisted = updatePriceValue(state.persisted, sheetState.itemId, sheetPriceInput.value, nowIso());
+        persistState();
         syncSheetInfo(sheetState.itemId);
       }
     });
@@ -328,33 +336,69 @@
     const groups = groupShoppingList(state.persisted.stock);
     const totalItems = groups.reduce((sum, g) => sum + g.items.length, 0);
 
+    function itemEstimate(item) {
+      const price = Number(state.persisted.prices[item.id] || 0);
+      return price * item.targetToBuy;
+    }
+
+    function groupTotal(group) {
+      return group.items.reduce((sum, item) => sum + itemEstimate(item), 0);
+    }
+
+    function formatBrl(value) {
+      return `R$ ${value.toFixed(2).replace('.', ',')}`;
+    }
+
+    const grandTotal = groups.reduce((sum, g) => sum + groupTotal(g), 0);
+    const hasAnyPrice = grandTotal > 0;
+
     return `
       <div class="summary-row">
         <div class="summary-chip chip-warn">
           <strong>${totalItems}</strong>
           <span>A comprar</span>
         </div>
-        <div class="summary-chip chip-ok">
-          <strong>${groups.length}</strong>
-          <span>Ciclos</span>
-        </div>
+        ${groups.map(group => `
+          <div class="summary-chip chip-ok">
+            <strong>${group.items.length}</strong>
+            <span>${group.label}</span>
+          </div>
+        `).join('')}
       </div>
 
-      ${groups.length ? groups.map(group => `
-        <div class="card">
-          <h3>${group.label} · ${group.items.length} item(ns)</h3>
-          ${group.items.map(item => `
-            <div class="shopping-item">
-              <div class="shopping-check"></div>
-              <div class="shopping-item-info">
-                <div class="shopping-item-name">${item.label}</div>
-                <div class="shopping-item-qty">Comprar ${item.targetToBuyLabel} · atual ${formatQuantity(item.current, item.unit)}</div>
-              </div>
-              ${renderBadge(item)}
-            </div>
-          `).join('')}
+      ${groups.length ? groups.map(group => {
+        const subtotal = groupTotal(group);
+        const hasSubtotal = subtotal > 0;
+        return `
+          <div class="card">
+            <h3>${group.label} · ${group.items.length} item(ns)${hasSubtotal ? ` <span style="color:var(--text-soft);font-weight:400;font-size:0.85em">· ~${formatBrl(subtotal)}</span>` : ''}</h3>
+            ${group.items.map(item => {
+              const estimate = itemEstimate(item);
+              const estimateStr = estimate > 0 ? ` · ~${formatBrl(estimate)}` : '';
+              return `
+                <div class="shopping-item">
+                  <div class="shopping-check"></div>
+                  <div class="shopping-item-info">
+                    <div class="shopping-item-name">${item.label}</div>
+                    <div class="shopping-item-qty">Comprar ${item.targetToBuyLabel} · atual ${formatQuantity(item.current, item.unit)}${estimateStr}</div>
+                  </div>
+                  ${renderBadge(item)}
+                </div>
+              `;
+            }).join('')}
+          </div>
+        `;
+      }).join('') : '<div class="empty">Tudo em dia. Nenhum item precisa de reposição agora.</div>'}
+
+      ${hasAnyPrice ? `
+        <div class="card" style="border-left:3px solid var(--accent)">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <span style="color:var(--text-soft);font-size:13px">Total estimado</span>
+            <strong style="font-size:1.1rem">${formatBrl(grandTotal)}</strong>
+          </div>
+          <div style="color:var(--text-soft);font-size:11px;margin-top:4px">Orçamento mensal: ${appProfile.monthlyBudget}</div>
         </div>
-      `).join('') : '<div class="empty">Tudo em dia. Nenhum item precisa de reposição agora.</div>'}
+      ` : ''}
 
       ${groups.length ? `
         <button type="button" class="btn btn-primary btn-block" data-action="shopping-list">Copiar lista de compras</button>
@@ -467,18 +511,37 @@
   function buildShoppingListText(groups) {
     if (!groups.length) return 'Tudo verde. Nenhum item abaixo do estoque ideal.';
 
+    function itemEstimate(item) {
+      const price = Number(state.persisted.prices[item.id] || 0);
+      return price * item.targetToBuy;
+    }
+
+    function formatBrl(value) {
+      return `R$ ${value.toFixed(2).replace('.', ',')}`;
+    }
+
+    const grandTotal = groups.reduce((sum, g) =>
+      sum + g.items.reduce((s, item) => s + itemEstimate(item), 0), 0);
+
     return [
       'LISTA DE COMPRAS · ESTOQUE DA CASA',
       `Gerada em ${new Date().toLocaleDateString('pt-BR')}`,
       '',
-      ...groups.flatMap(group => [
-        `${group.label.toUpperCase()} · ${group.items.length} item(ns)`,
-        ...group.items.map(item => {
-          const marker = item.status === 'alert' ? '🔴' : '🟡';
-          return `${marker} ${item.label} · comprar ${item.targetToBuyLabel} · atual ${formatQuantity(item.current, item.unit)}`;
-        }),
-        '',
-      ]),
+      ...groups.flatMap(group => {
+        const subtotal = group.items.reduce((s, item) => s + itemEstimate(item), 0);
+        const subtotalStr = subtotal > 0 ? ` · ~${formatBrl(subtotal)}` : '';
+        return [
+          `${group.label.toUpperCase()} · ${group.items.length} item(ns)${subtotalStr}`,
+          ...group.items.map(item => {
+            const marker = item.status === 'alert' ? '🔴' : '🟡';
+            const estimate = itemEstimate(item);
+            const priceStr = estimate > 0 ? ` · ~${formatBrl(estimate)}` : '';
+            return `${marker} ${item.label} · comprar ${item.targetToBuyLabel} · atual ${formatQuantity(item.current, item.unit)}${priceStr}`;
+          }),
+          '',
+        ];
+      }),
+      ...(grandTotal > 0 ? [`Total estimado: ${formatBrl(grandTotal)}`] : []),
     ].join('\n');
   }
 
@@ -628,6 +691,7 @@
     sheetStockInput.value = state.persisted.stock[itemId] || '';
     sheetStockInput.step = sheetState.step;
     sheetUnit.textContent = item.unit;
+    sheetPriceInput.value = state.persisted.prices[itemId] || '';
     syncSheetInfo(itemId);
     itemSheet.hidden = false;
     sheetStockInput.focus();
@@ -653,11 +717,16 @@
     const item = getItemById(itemId);
     if (!item) return;
     const snapshot = computeStockSnapshot(item, state.persisted.stock[itemId] || 0);
+    const price = Number(state.persisted.prices[itemId] || 0);
+    const estimatedCost = price && snapshot.targetToBuy > 0
+      ? `R$ ${(price * snapshot.targetToBuy).toFixed(2).replace('.', ',')}`
+      : '—';
     sheetInfo.innerHTML = `
       <div><strong>${snapshot.stockTargetLabel}</strong> Meta</div>
       <div><strong>${snapshot.coverage}</strong> Cobertura</div>
       <div><strong>${snapshot.purchaseCycleLabel}</strong> Ciclo</div>
       <div><strong>${snapshot.targetToBuyLabel || 'Nenhuma'}</strong> Compra sugerida</div>
+      <div style="grid-column:1/-1"><strong>${estimatedCost}</strong> Estimativa de compra</div>
     `;
   }
 

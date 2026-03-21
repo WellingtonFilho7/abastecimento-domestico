@@ -546,6 +546,43 @@
     font-size: 13px;
   }
 
+  .item-sheet-price-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+    padding: 8px 12px;
+    border-radius: 8px;
+    background: var(--surface-soft);
+  }
+
+  .item-sheet-price-label {
+    font-size: 12px;
+    color: var(--text-soft);
+  }
+
+  .item-sheet-price-input-wrap {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .item-sheet-price-prefix {
+    font: 500 13px/1 'IBM Plex Mono', monospace;
+    color: var(--text-soft);
+  }
+
+  .item-sheet-price-input {
+    width: 72px;
+    border: 0;
+    background: transparent;
+    text-align: right;
+    font: 600 14px/1 'IBM Plex Mono', monospace;
+    color: var(--text);
+  }
+
+  .item-sheet-price-input:focus { outline: none; }
+
   /* ===== Toast ===== */
   .app-toast {
     position: fixed;
@@ -669,6 +706,13 @@
         <input id="sheet-stock-input" class="item-sheet-input" type="number" min="0" inputmode="decimal" aria-label="Quantidade">
         <span id="sheet-unit" class="item-sheet-unit"></span>
         <button type="button" class="item-sheet-step" data-sheet-action="increment" aria-label="Aumentar">+</button>
+      </div>
+      <div class="item-sheet-price-row">
+        <span class="item-sheet-price-label">Preço estimado por unidade</span>
+        <div class="item-sheet-price-input-wrap">
+          <span class="item-sheet-price-prefix">R$</span>
+          <input id="sheet-price-input" class="item-sheet-price-input" type="number" min="0" step="0.01" inputmode="decimal" placeholder="0,00" aria-label="Preço estimado">
+        </div>
       </div>
       <div id="sheet-info" class="item-sheet-info"></div>
     </div>
